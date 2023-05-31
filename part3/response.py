@@ -10,29 +10,29 @@ def try_charging(request):
     car_id = json_dict.get("car_id","")
     request_amount = json_dict.get("request_amount","")
     request_mode = json_dict.get("request_mode","")
-    return_json = {"code" : 1, "msg" : "", "data" : ""}
+    return_json = {"code" : 1, "message" : "", "data" : ""}
     if car_id == "" or request_amount == "" or request_mode == "":
         return_json["code"] = 0
-        return_json["msg"] = "缺少参数"
+        return_json["message"] = "缺少参数"
         return_json["data"] = ""
         return HttpResponse(json.dumps(return_json, ensure_ascii=False))
     #car_state = get_car_state(car_id)
     #car_capacity = get_car_capacity(car_id)
     #if request_amount>car_capacity:
     #    return_json["code"] = 0
-    #    return_json["msg"] = "请求电量超过车辆总电量"
+    #    return_json["message"] = "请求电量超过车辆总电量"
     #    return_json["data"] = ""
     #    return HttpResponse(json.dumps(return_json, ensure_ascii=False))
     state, pile_id, queue_num= queue.add_car(car_id, request_mode)
     if state == -1:
-        if car_id == "" or request_amount == "" or request_mode == "":
-            return_json["code"] = 0
-            return_json["msg"] = "充电等候区已满"
-            return_json["data"] = ""
-            return HttpResponse(json.dumps(return_json, ensure_ascii=False))
-    return_json["msg"] = "请求成功"
+        return_json["code"] = 0
+        return_json["message"] = "充电等候区已满"
+        return_json["data"] = ""
+        return HttpResponse(json.dumps(return_json, ensure_ascii=False))
     #change_request_mode(car_id, request_mode)
     #change_request_amount(car_id, request_amount)
+    #change_queue_num(car_id, queue_num)
+    #change_request_time(car_id, request_time)
     #if state == 1:
     #    change_car_state(car_id, my_constant.car_state.charging_area)
     #    return_json["data"] = {"car_position" : pile_id, "car_state": my_constant.car_state.charging_area,
@@ -47,6 +47,126 @@ def try_charging(request):
     #                       "queue_num" : queue_num, "request_time": time.strftime('%Y-%m-%d %H:%M:%S', time.localtime())}#get_current_time
     return_json["data"] = {"car_position" : pile_id, "car_state" : my_constant.car_state.charging_area,
                            "queue_num" : queue_num, "request_time" : time.strftime('%Y-%m-%d %H:%M:%S', time.localtime())}#get_current_time
-    print(return_json)
     return HttpResponse(json.dumps(return_json, ensure_ascii=False))
 
+def get_state(request):
+    json_dict = json.loads(request.body)
+    return_json = {"code" : 1, "message" : "请求成功", "data" : ""}
+    car_id = json_dict.get("car_id","")
+    pile_id = queue.get_pile_id(car_id)
+    #request_mode = get_request_mode(car_id)
+    #car_position = queue.get_car_position(car_id, request_mode)
+    #car_state = get_car_state(car_id)
+    #queue_num = get_queue_num(car_id)
+    #request_time = get_request_time(car_id)
+    #return_json["data"]={"car_position": car_position, "car_state": car_state, "queue_num": queue_num,
+    #                     "request_time": request_time, "pile_id": pile_id, "request_mode": request_mode}
+    return_json["data"] = {"car_position": 2, "car_state": my_constant.car_state.wating, "queue_num": "4",
+                         "request_time": time.strftime('%Y-%m-%d %H:%M:%S', time.localtime()), "pile_id": pile_id, "request_mode": "F"}
+    return HttpResponse(json.dumps(return_json, ensure_ascii=False))
+def change_amount(request):
+    json_dict = json.loads(request.body)
+    return_json = {"code" : 1, "message" : "请求成功", "data" : ""}
+    car_id = json_dict.get("car_id", "")
+    request_amount = json_dict.get("request_amount", "")
+    if car_id == "" or request_amount == "":
+        return_json["code"] = 0
+        return_json["message"] = "缺少参数"
+        return_json["data"] = ""
+        return HttpResponse(json.dumps(return_json, ensure_ascii=False))
+    #car_state = get_car_state(car_id)
+    #car_capacity = get_car_capacity(car_id)
+    #if request_amount>car_capacity:
+    #    return_json["code"] = 0
+    #    return_json["message"] = "请求电量超过车辆总电量"
+    #    return_json["data"] = ""
+    #    return HttpResponse(json.dumps(return_json, ensure_ascii=False))
+    #if car_state==my_constant.car_state.wating:
+    #    return_json["code"] = 1
+    #    return_json["message"] = "修改成功"
+    #    return_json["data"] = ""
+    #    return HttpResponse(json.dumps(return_json, ensure_ascii=False))
+    return_json["code"] = 0
+    return_json["message"] = "在充电区或正在充电"
+    return_json["data"] = ""
+    return HttpResponse(json.dumps(return_json, ensure_ascii=False))
+def change_mode(request):
+    json_dict = json.loads(request.body)
+    return_json = {"code" : 1, "message" : "请求成功", "data" : ""}
+    car_id = json_dict.get("car_id", "")
+    request_mode = json_dict.get("request_mode", "")
+    if car_id == "" or request_mode == "":
+        return_json["code"] = 0
+        return_json["message"] = "缺少参数"
+        return_json["data"] = ""
+        return HttpResponse(json.dumps(return_json, ensure_ascii=False))
+    #car_state = get_car_state(car_id)
+    #if car_state!=my_constant.car_state.wating:
+    #    return_json["code"] = 0
+    #    return_json["message"] = "在充电区或正在充电"
+    #    return_json["data"] = ""
+    #    return HttpResponse(json.dumps(return_json, ensure_ascii=False))
+    state, pile_id, queue_num = queue.re_add(car_id, request_mode)
+
+    # change_request_mode(car_id, request_mode)
+    # change_queue_num(car_id, queue_num)
+    # change_request_time(car_id, request_time)
+    #    change_car_state(car_id, my_constant.car_state.wating)
+    #    return_json["data"] = {"car_position" : pile_id, "car_state": my_constant.car_state.wating,
+    #                       "queue_num" : queue_num, "request_time": time.strftime('%Y-%m-%d %H:%M:%S', time.localtime())}#get_current_time
+    return_json["data"] = {"car_position": pile_id, "car_state": my_constant.car_state.wating,
+                           "queue_num": queue_num,
+                           "request_time": time.strftime('%Y-%m-%d %H:%M:%S', time.localtime())}  # get_current_time
+    return HttpResponse(json.dumps(return_json, ensure_ascii=False))
+
+def start_charging(request):
+    json_dict = json.loads(request.body)
+    return_json = {"code" : 1, "message" : "开始充电", "data" : ""}
+    car_id = json_dict.get("car_id", "")
+    pile_id = queue.get_pile_id(car_id)
+    #car_state = get_car_state(car_id)
+    #if car_state == my_constant.car_state.can_charging:
+    #    change_car_state(car_id,my_constant.car_state.charging)
+    #    car_list = queue.get_car_list(car_id)
+    #    for i in car_list:
+    #        change_car_state(car_id, my_constant.car_state.charging_area)
+    #    change_pile_state(pile_id,my_constant.pile_state.using)
+    #    return HttpResponse(json.dumps(return_json, ensure_ascii=False))
+    return_json["code"]=0
+    return_json["message"]="充电桩正在使用中"
+    return HttpResponse(json.dumps(return_json, ensure_ascii=False))
+def get_charging_state(request):
+    json_dict = json.loads(request.body)
+    return_json = {"code" : 1, "message" : "查询成功", "data" : ""}
+    car_id = json_dict.get("car_id", "")
+    #return_json["data"]=get_charging_bill(car_id)
+    return HttpResponse(json.dumps(return_json, ensure_ascii=False))
+def end_charging(request):
+    json_dict = json.loads(request.body)
+    return_json = {"code" : 1, "message" : "充电结束", "data" : ""}
+    car_id = json_dict.get("car_id", "")
+    #car_state = get_car_state(car_id)
+    #if car_state == my_constant.car_state.idle or car_state == my_constant.car_state.end_charging:
+    #    return_json["code"]=0
+    #    return_json["message"]="充电已结束"
+    #    return HttpResponse(json.dumps(return_json, ensure_ascii=False))
+    # if car_state == my_constant.car_state.wating:
+    #     queue.del_wating(car_id)
+    #     change_car_state(car_id, my_constant.car_state.idle)
+    #     return HttpResponse(json.dumps(return_json, ensure_ascii=False))
+    # elif car_state == my_constant.car_state.charging_area:
+    #     change_car_state(car_id, my_constant.car_state.idle)
+    #     tmp_car=queue.get_new_charging_car()
+    #     change_car_state(tmp_car, my_constant.car_state.charging_area)
+    # elif car_state == my_constant.car_state.can_charging:
+    #     change_car_state(car_id, my_constant.car_state.idle)
+    #     tmp_car=queue.get_new_charging_car()
+    #     change_car_state(tmp_car, my_constant.car_state.can_charging)
+    # elif car_state ==my_constant.car_state.charging:
+    #     change_car_state(car_id, my_constant.car_state.idle)
+    #    car_list = queue.get_car_list(car_id)
+    #    for i in car_list:
+    #        change_car_state(car_id, my_constant.car_state.can_charging)
+    #     tmp_car=queue.get_new_charging_car()
+    #     change_car_state(tmp_car, my_constant.car_state.can_charging)
+    return HttpResponse(json.dumps(return_json, ensure_ascii=False))
