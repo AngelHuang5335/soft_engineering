@@ -8,6 +8,18 @@ import time
 user_list = models.User_list()
 
 
+def judge_user_online(token):
+    return user_list.judge_user_online(token)
+
+
+def judge_user_token(token):
+    return user_list.judge_user_token(token)
+
+
+def judge_admin_token(token):
+    return user_list.judge_admin_token(token)
+
+
 def generate_token(username):
     d = {
         # 公共声明
@@ -83,8 +95,12 @@ def user_login(request):
 def user_logout(request):
     token = request.META.get('HTTP_AUTHORIZATION')
     if user_list.judge_user_online(token):
-        user_list.user_offline(token)
-        return HttpResponse(json.dumps({'code': '1', 'message': '成功登出'}, ensure_ascii=False))
+        flag, _ = user_list.judge_user_token(token)
+        if flag:
+            user_list.user_offline(token)
+            return HttpResponse(json.dumps({'code': '1', 'message': '成功登出'}, ensure_ascii=False))
+        else:
+            return HttpResponse(json.dumps({'code': '0', 'message': '用户未登录'}, ensure_ascii=False))
     else:
         return HttpResponse(json.dumps({'code': '0', 'message': '用户未登录'}, ensure_ascii=False))
 
@@ -118,7 +134,10 @@ def admin_login(request):
 def admin_logout(request):
     token = request.META.get('HTTP_AUTHORIZATION')
     if user_list.judge_user_online(token):
-        user_list.user_offline(token)
-        return HttpResponse(json.dumps({'code': '1', 'message': '成功登出'}, ensure_ascii=False))
+        if user_list.judge_admin_token(token):
+            user_list.user_offline(token)
+            return HttpResponse(json.dumps({'code': '1', 'message': '成功登出'}, ensure_ascii=False))
+        else:
+            return HttpResponse(json.dumps({'code': '0', 'message': '用户未登录'}, ensure_ascii=False))
     else:
         return HttpResponse(json.dumps({'code': '0', 'message': '用户未登录'}, ensure_ascii=False))
