@@ -147,11 +147,8 @@ def get_charging_state(request):
     car_id = json_dict.get("car_id", "")
     #return_json["data"]=get_charging_bill(car_id)
     return HttpResponse(json.dumps(return_json, ensure_ascii=False))
-def end_charging(request):
-    json_dict = json.loads(request.body)
-    return_json = {"code" : 1, "message" : "充电结束", "data" : ""}
-    car_id = json_dict.get("car_id", "")
-    #car_state = get_car_state(car_id)
+def end_car_charging(car_id):
+    car_state = 1#get_car_state(car_id)
     #if car_state == my_constant.car_state.idle or car_state == my_constant.car_state.end_charging:
     #    return_json["code"]=0
     #    return_json["message"]="充电已结束"
@@ -175,6 +172,11 @@ def end_charging(request):
     #        change_car_state(car_id, my_constant.car_state.can_charging)
     #     tmp_car=queue.get_new_charging_car()
     #     change_car_state(tmp_car, my_constant.car_state.can_charging)
+def end_charging(request):
+    json_dict = json.loads(request.body)
+    return_json = {"code" : 1, "message" : "充电结束", "data" : ""}
+    car_id = json_dict.get("car_id", "")
+    end_car_charging(car_id)
     return HttpResponse(json.dumps(return_json, ensure_ascii=False))
 
 def get_queue_state(request):
