@@ -1,16 +1,22 @@
 from django.http import HttpResponse
-from part3.models import Queue,my_constant
+from part3.models import Queue,my_constant,Price
 import time
 import json
-def create_global():
-    global queue
-    queue = Queue()
+
+#def __init__():
+queue = Queue()
+new_price = Price.objects.all()
+my_constant.low_price=new_price[0].low_price
+my_constant.mid_price=new_price[0].mid_price
+my_constant.high_price=new_price[0].high_price
+print(new_price)
+print(my_constant.low_price,my_constant.mid_price,my_constant.high_price)
 def try_charging(request):
     json_dict = json.loads(request.body)
     car_id = json_dict.get("car_id","")
     request_amount = json_dict.get("request_amount","")
     request_mode = json_dict.get("request_mode","")
-    return_json = {"code" : 1, "message" : "", "data" : ""}
+    return_json = {"code" : 1, "message" : "请求成功", "data" : ""}
     if car_id == "" or request_amount == "" or request_mode == "":
         return_json["code"] = 0
         return_json["message"] = "缺少参数"
@@ -163,10 +169,49 @@ def end_charging(request):
     #     tmp_car=queue.get_new_charging_car()
     #     change_car_state(tmp_car, my_constant.car_state.can_charging)
     # elif car_state ==my_constant.car_state.charging:
-    #     change_car_state(car_id, my_constant.car_state.idle)
-    #    car_list = queue.get_car_list(car_id)
-    #    for i in car_list:
+    #     change_car_state(car_id, my_constant.car_state.end_charging)
+    #     car_list = queue.get_car_list(car_id)
+    #     for i in car_list:
     #        change_car_state(car_id, my_constant.car_state.can_charging)
     #     tmp_car=queue.get_new_charging_car()
     #     change_car_state(tmp_car, my_constant.car_state.can_charging)
+    return HttpResponse(json.dumps(return_json, ensure_ascii=False))
+
+def get_queue_state(request):
+    return_json = {"code" : 1, "message" : "查询成功", "data" : ""}
+    car_list=queue.get_all_car()
+    return_json["data"]=[]
+    for i,j in car_list:
+        tmp_dict = {}
+        tmp_dict["user_id"]="1234"#get_user_id(i)
+        tmp_dict["car_capacity"]="2233"#get_car_capacity(i)
+        tmp_dict["request_amount"]="3344"#get_request_amount(i)
+        tmp_dict["wait_time"]="12312"#get_waiting_time(i)
+        tmp_dict["pile_id"]=j
+        tmp_dict["car_state"]=my_constant.car_state.wating#get_car_state(i)
+        tmp_dict["request_mode"]="F"#get_request_mode(i)
+        return_json["data"].append(tmp_dict)
+    return HttpResponse(json.dumps(return_json, ensure_ascii=False))
+
+def add_price(request):
+    return_json = {"code" : 1, "message" : "修改成功", "data" : ""}
+    price=Price()
+    price.save()
+    return HttpResponse(json.dumps(return_json, ensure_ascii=False))
+
+def set_price(request):
+    json_dict = json.loads(request.body)
+    return_json = {"code" : 1, "message" : "修改成功", "data" : ""}
+    low_price = json_dict.get("low_price", "")
+    mid_price = json_dict.get("mid_price", "")
+    high_price = json_dict.get("high_price", "")
+    new_price = Price.objects.all()
+    #new_price.low_price=low_price
+    #new_price.mid_price=mid_price
+    #new_price.high_price=high_price
+    new_price.update(low_price=low_price,mid_price=mid_price,high_price=high_price)
+    my_constant.low_price=low_price
+    my_constant.mid_price=mid_price
+    my_constant.high_price=high_price
+    print(my_constant.low_price,my_constant.mid_price,my_constant.high_price)
     return HttpResponse(json.dumps(return_json, ensure_ascii=False))

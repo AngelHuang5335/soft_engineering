@@ -1,10 +1,11 @@
 from django.urls import path
+from part1 import login
 from part3 import response
 
 urlpatterns = [
-    #path('login/', admin.site.urls),
-    #path('register/', admin.site.urls),
-    #path('logout/', admin.site.urls),
+    path('login/', login.user_login),
+    path('register/', login.user_register),
+    path('logout/', login.user_logout),
     path('chargingRequest/', response.try_charging),
     path('queryCarState/', response.get_state),
     path('changeChargingMode/', response.change_mode),

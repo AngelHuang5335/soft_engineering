@@ -1,6 +1,4 @@
 from django.db import models
-from enum import Enum
-# Create your models here.
 
 class my_constant:
     charge_area = 2
@@ -8,6 +6,8 @@ class my_constant:
     fast_pile = 2
     slow_pile = 3
     pile_num = fast_pile + slow_pile
+    price_duration=[["0:00","7:00","L"],["7:00","10:00","M"],["10:00","15:00","H"],["15:00","18:00","M"],
+                    ["18:00","21:00","H"],["21:00","23:00","M"],["7:00","10:00","L"]]
     class pile_state():
         idle = "空闲"
         close = "关闭"
@@ -20,18 +20,29 @@ class my_constant:
         can_charging = "允许充电"
         charging = "正在充电"
         end_charging = "结束充电"
+    low_price=0
+    mid_price=0
+    high_price=0
+    def __init__(self):
+        print("Constant realize!")
     pass
-
+class Price(models.Model):
+    low_price = models.FloatField(default=0.4)
+    mid_price = models.FloatField(default=0.7)
+    high_price = models.FloatField(default=1.0)
+    pass
 class Queue:
     charge_queue = []
     waiting_queue = []
     mode_queue = []
+    broken_list = []
+    pile_state = []
     def __init__(self):
         self.charge_queue = [[-1 for j in range(my_constant.charge_area)] for i in range(my_constant.pile_num)]
         self.waiting_queue = [-1 for j in range(my_constant.waiting_area)]
         self.mode_queue = [-1 for i in range(my_constant.waiting_area)]
+        self.broken_list = [[]for i in range(2)]
         self.queue_num = 0
-        self.tot_waiting = 0
     def get_new_queue_num(self):
         self.queue_num+=1
         return self.queue_num
@@ -91,9 +102,7 @@ class Queue:
         for i in range(my_constant.waiting_area):
             if self.mode_queue == charge_mode:
                 queue_cnt += 1
-            if self.waiting_queue[i] == -1:
-                self.waiting_queue[i] = car_id
-                self.mode_queue[i] = charge_mode
+            if self.waiting_queue[i] == car_id:
                 return queue_cnt
         return 0
     def get_car_list(self, car_id):
@@ -107,11 +116,19 @@ class Queue:
                             list.append(self.charge_queue[i][k])
                     self.charge_queue[i][j]=car_id
                     return list
+    def check_broken_list(self,charge_mode):
+        if charge_mode=='F':
+            list_id=0
+        else: list_id=1
+        if len(self.broken_list[list_id])==0:
+            return -1,-1
+        new_car=self.broken_list[list_id][0]
+        self.broken_list[list_id].pop(0)
+        return 0,new_car
     def get_new_charging_car(self, car_id):
         pile_id=0
         position = 0
         charge_mode='T'
-        new_car = 0
         for i in range(my_constant.pile_num):
             for j in range(my_constant.charge_area):
                 if self.charge_queue[i][j] == car_id:
@@ -119,13 +136,26 @@ class Queue:
                     break
         if pile_id < my_constant.fast_pile:
             charge_mode='F'
+        rcode, new_car=self.check_broken_list(charge_mode)
+        if rcode == -1:
+            for i in range(my_constant.waiting_area):
+                if self.mode_queue[i] == charge_mode:
+                    new_car=self.waiting_queue[i]
+                    for j in range(i, my_constant.waiting_area-1):
+                        self.waiting_queue[j]=self.waiting_queue[j+1]
+                        self.mode_queue[j]=self.mode_queue[j+1]
+                    self.waiting_queue[my_constant.waiting_area-1]=-1
+                    self.mode_queue[my_constant.waiting_area-1]=-1
+                    self.charge_queue[pile_id][position]=new_car
+        return new_car
+    def get_all_car(self):
+        return_list=[]
+        for i in range(my_constant.pile_num):
+            for j in range(my_constant.charge_area):
+                if self.charge_queue[i][j]!=-1:
+                    return_list.append([self.charge_queue[i][j],i])
         for i in range(my_constant.waiting_area):
-            if self.mode_queue[i] == charge_mode:
-                new_car=self.waiting_queue[i]
-                for j in range(i, my_constant.waiting_area-1):
-                    self.waiting_queue[j]=self.waiting_queue[j+1]
-                    self.mode_queue[j]=self.mode_queue[j+1]
-                self.waiting_queue[my_constant.waiting_area-1]=-1
-                self.mode_queue[my_constant.waiting_area-1]=-1
-        self.charge_queue[pile_id][position]=new_car
+            if self.waiting_queue[i]!=-1:
+                return_list.append([self.waiting_queue[i],-1])
+        return return_list
     pass
