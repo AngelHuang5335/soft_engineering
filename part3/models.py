@@ -23,8 +23,9 @@ class my_constant:
     low_price=0
     mid_price=0
     high_price=0
-    def __init__(self):
-        print("Constant realize!")
+    service_price=0.8
+    slow_charging_v=8
+    fast_charging_v=50
     pass
 class Price(models.Model):
     low_price = models.FloatField(default=0.4)
