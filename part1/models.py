@@ -2,27 +2,18 @@ from datetime import datetime
 from django.db import models
 import threading
 import time
-from part3 import response
 
 
 class User(models.Model):
     username = models.CharField(max_length=50, null=True)
     password = models.CharField(max_length=50)
-    car_id = models.IntegerField(null=True)
-    car_capacity = models.IntegerField(null=True)
+    car_id = models.CharField(max_length=50, null=True)
+    car_capacity = models.FloatField(null=True)
     is_admin = models.IntegerField()
     token = models.CharField(max_length=200, null=True)
 
     def __str__(self):
         return self.username
-
-    class Meta:
-        # 定义数据表名
-        db_table = 'User'
-        # 表别名
-        verbose_name = '用户'
-        # 表别名复数，用于英文显示
-        verbose_name_plural = verbose_name
 
 
 class User_list:

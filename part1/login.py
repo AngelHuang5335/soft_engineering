@@ -20,6 +20,10 @@ def judge_admin_token(token):
     return user_list.judge_admin_token(token)
 
 
+def get_user_id(car_id):
+    return models.User.objects.get(car_id=car_id).id
+
+
 def generate_token(username):
     d = {
         # 公共声明
@@ -74,6 +78,7 @@ def user_login(request):
     if username and password:
         if models.User.objects.filter(username=username).exists():
             user = models.User.objects.get(username=username)
+            get_user_id(user.car_id)
             if check_password(password, user.password):
                 if user_list.check_user_online(user):
                     return HttpResponse(json.dumps({'code': '0', 'message': '用户已登录'}, ensure_ascii=False))
@@ -141,3 +146,5 @@ def admin_logout(request):
             return HttpResponse(json.dumps({'code': '0', 'message': '用户未登录'}, ensure_ascii=False))
     else:
         return HttpResponse(json.dumps({'code': '0', 'message': '用户未登录'}, ensure_ascii=False))
+
+
