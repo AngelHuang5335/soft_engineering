@@ -46,15 +46,20 @@ def calculate_charge_fee(hou, minu, sec):
     return my_constant.low_price * low_time + my_constant.mid_price * mid_time + my_constant.high_price * high_time
 
 
-def update_bill(carid):
+def update_bill(carid, sign):
     car = Car.objects.filter(car_id=carid)
     bill = Bill.objects.filter(car_id=carid).last()
     starttime = bill.start_time
     endtime = get_simulated_time()
-    amount = car.request_amount
     duration = (endtime - starttime).seconds / 3600
+    if car.request_mode == "F":
+        amount = duration * my_constant.slow_charging_v
+    elif car.request_mode == "T":
+        amount = duration * my_constant.fast_charging_v
+    if sign == 1:
+        car.request_amount = car.request_amount - amount
+        car.save()
     service_fee = amount * my_constant.service_price
-
     if endtime.date() == starttime.date():
         charge_fee = calculate_charge_fee(endtime.hour, endtime.minute, endtime.second) - \
                      calculate_charge_fee(starttime.hour, starttime.minute, starttime.second)
@@ -62,7 +67,6 @@ def update_bill(carid):
         charge_fee = (endtime.date() - starttime.date()).days * calculate_charge_fee(24, 0, 0) + \
                      calculate_charge_fee(endtime.hour, endtime.minute, endtime.second) + \
                      calculate_charge_fee(starttime.hour, starttime.minute, starttime.second)
-
     bill.charge_amount = amount
     bill.charge_duration = duration
     bill.end_time = endtime
@@ -70,6 +74,9 @@ def update_bill(carid):
     bill.total_service_fee = service_fee
     bill.total_fee = charge_fee + service_fee
     bill.save()
+
+
+# def pile_broken(pile_id):
 
 
 def get_car_state(carid):
