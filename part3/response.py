@@ -1,5 +1,6 @@
 from django.http import HttpResponse
 from part3.models import Queue,my_constant,Price
+from part1 import login
 import time
 import json
 
@@ -132,7 +133,9 @@ def start_charging(request):
     pile_id = queue.get_pile_id(car_id)
     #car_state = get_car_state(car_id)
     #if car_state == my_constant.car_state.can_charging:
+    #    change_pile_state(queue.get_pile_id(car_id),my_constant.pile_state.using)
     #    change_car_state(car_id,my_constant.car_state.charging)
+    #    start_bill(car_id)
     #    car_list = queue.get_car_list(car_id)
     #    for i in car_list:
     #        change_car_state(car_id, my_constant.car_state.charging_area)
@@ -167,6 +170,8 @@ def end_car_charging(car_id):
     #     change_car_state(tmp_car, my_constant.car_state.can_charging)
     # elif car_state ==my_constant.car_state.charging:
     #     change_car_state(car_id, my_constant.car_state.end_charging)
+    #     end_bill(car_id)
+    #     change_pile_state(queue.get_pile_id(car_id),my_constant.pile_state.idle)
     #     car_list = queue.get_car_list(car_id)
     #     for i in car_list:
     #        change_car_state(car_id, my_constant.car_state.can_charging)
@@ -185,7 +190,7 @@ def get_queue_state(request):
     return_json["data"]=[]
     for i,j in car_list:
         tmp_dict = {}
-        tmp_dict["user_id"]="1234"#get_user_id(i)
+        tmp_dict["user_id"]=login.get_user_id(i)
         tmp_dict["car_capacity"]="2233"#get_car_capacity(i)
         tmp_dict["request_amount"]="3344"#get_request_amount(i)
         tmp_dict["wait_time"]="12312"#get_waiting_time(i)
@@ -217,3 +222,18 @@ def set_price(request):
     my_constant.high_price=high_price
     print(my_constant.low_price,my_constant.mid_price,my_constant.high_price)
     return HttpResponse(json.dumps(return_json, ensure_ascii=False))
+
+def pile_broken(pile_id):
+    car_list=queue.pile_broken(pile_id)
+    #for i in car_list:
+    #    car_state=get_car_state(i)
+    #    if car_state==my_constant.car_state.charging:
+    #        end_bill(i)
+    #        change_car_state(i,my_constant.car_state.charging_area)
+    #    elif car_state==my_constant.car_state.charging_area or car_state==my_constant.car_state.can_charging:
+    #        change_car_state(i,my_constant.car_state.charging_area)
+
+def pile_recover(pile_id):
+    car_list=queue.pile_recover(pile_id)
+    #for i in car_list:
+    #    change_car_state(i,my_constant.car_state.can_charging)

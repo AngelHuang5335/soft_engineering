@@ -7,7 +7,7 @@ class my_constant:
     slow_pile = 3
     pile_num = fast_pile + slow_pile
     price_duration=[["0:00","7:00","L"],["7:00","10:00","M"],["10:00","15:00","H"],["15:00","18:00","M"],
-                    ["18:00","21:00","H"],["21:00","23:00","M"],["7:00","10:00","L"]]
+                    ["18:00","21:00","H"],["21:00","23:00","M"],["23:00","7:00","L"]]
     class pile_state():
         idle = "空闲"
         close = "关闭"
@@ -24,8 +24,8 @@ class my_constant:
     mid_price=0
     high_price=0
     service_price=0.8
-    slow_charging_v=8
-    fast_charging_v=50
+    slow_charging_v=7
+    fast_charging_v=30
     pass
 class Price(models.Model):
     low_price = models.FloatField(default=0.4)
@@ -56,14 +56,10 @@ class Queue:
             end_pile_id = my_constant.pile_num
         for j in range(my_constant.charge_area):
             for i in range(start_pile_id,end_pile_id):
-                #pile_state=get_pile_state(i)
-                #if pile_state=="损坏" or pile_state=="关闭":
-                #    continue
+                if self.pile_state[i]==my_constant.pile_state.broken:
+                    continue
                 if self.charge_queue[i][j] == -1:
                     self.charge_queue[i][j]=car_id
-                    #if pile_state=="使用中":
-                    #    return 1,i
-                    #else:
                     return 0,i,str(self.get_new_queue_num())
         for i in range(my_constant.waiting_area):
             if self.mode_queue == charge_mode:
@@ -148,6 +144,7 @@ class Queue:
                     self.waiting_queue[my_constant.waiting_area-1]=-1
                     self.mode_queue[my_constant.waiting_area-1]=-1
                     self.charge_queue[pile_id][position]=new_car
+                    return new_car
         return new_car
     def get_all_car(self):
         return_list=[]
@@ -158,5 +155,26 @@ class Queue:
         for i in range(my_constant.waiting_area):
             if self.waiting_queue[i]!=-1:
                 return_list.append([self.waiting_queue[i],-1])
+        return return_list
+    def pile_broken(self, pile_id):
+        if self.pile_state[pile_id]==my_constant.pile_state.broken:
+            return
+        return_list=[]
+        for i in self.charge_queue[pile_id]:
+            if i!=-1:
+                self.broken_list.append(i)
+                return_list.append(i)
+        self.pile_state[pile_id]=my_constant.pile_state.broken
+        return return_list
+    def pile_recover(self, pile_id):
+        if self.pile_state[pile_id]==my_constant.pile_state.idle or self.pile_state[pile_id]==my_constant.pile_state.using:
+            return
+        return_list=[]
+        for i in range(my_constant.charge_area):
+            self.charge_queue[pile_id][i]=-2
+            self.charge_queue[pile_id][i]=self.get_new_charging_car(-2)
+            if self.charge_queue[pile_id][i]!=-1:
+                return_list.append(self.charge_queue[pile_id][i])
+        self.pile_state[pile_id]=my_constant.pile_state.idle
         return return_list
     pass
