@@ -1,5 +1,6 @@
 from django.urls import path
 from part1 import login
+from part2 import operate
 from part3 import response
 
 urlpatterns = [
@@ -13,8 +14,8 @@ urlpatterns = [
     path('beginCharging/', response.start_charging),
     path('getChargingState/', response.get_charging_state),
     path('endCharging/', response.end_charging),
-    #path('changeCapacity/', admin.site.urls),
-    #path('getTotalBill/', admin.site.urls),
-    #path('getDetailBill/', admin.site.urls),
-    #path('getPayBill/', admin.site.urls),
+    #path('changeCapacity/', operate.),
+    path('getTotalBill/', operate.get_total_bill),
+    path('getDetailBill/', operate.get_detail_bill),
+    path('getPayBill/', operate.get_pay_bill),
 ]
