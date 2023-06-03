@@ -1,7 +1,4 @@
-from datetime import datetime
 from django.db import models
-import threading
-import time
 
 
 class User(models.Model):
@@ -64,40 +61,6 @@ class User_list:
                 return 0
 
     def print_online_user(self):
+        print('online user size', len(self.online_list))
         for i in self.online_list:
-            print('online user size', len(self.online_list))
             print('online username:', i.username)
-
-
-class Timer:
-    coefficient = 10    # 加速系数
-    std_time = "2023.06.01 00:00:00"    # 模拟时间开始节点
-    time1 = datetime.strptime(std_time, "%Y.%m.%d %H:%M:%S")
-    time2 = datetime.now()
-
-
-    def get_simulated_time(self):
-        time_difference = self.time2 - self.time1
-        simulated_time = self.coefficient * time_difference + self.time1
-        return simulated_time
-
-
-class Clock:
-    def __init__(self, charge_time, car_id):
-        self.real_time = 300 * charge_time / Timer.coefficient  # charge_time为小时，换算为秒并除以模拟时间系数
-        self.car_id = car_id
-
-    def start_charge(self):
-        threading.Thread(target=self.run).start()
-
-    def run(self):
-        # 等待持续时间
-        time.sleep(self.real_time)
-        self.charge_complete()
-
-    def charge_complete(self):
-        response.end_car_charging(self.car_id)
-
-
-
-
