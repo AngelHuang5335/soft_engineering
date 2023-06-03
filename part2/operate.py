@@ -69,6 +69,7 @@ def update_bill(carid):
     bill.total_charge_fee = charge_fee
     bill.total_service_fee = service_fee
     bill.total_fee = charge_fee + service_fee
+    bill.save()
 
 
 def get_car_state(carid):
@@ -100,27 +101,39 @@ def get_charging_bill(carid):
 
 
 def change_car_state(carid, carstate):
-    Car.objects.filter(car_id=carid).car_state = carstate
+    car = Car.objects.filter(car_id=carid)
+    car.car_state = carstate
+    car.save()
 
 
 def change_request_mode(carid, requestmode):
-    Car.objects.filter(car_id=carid).request_mode = requestmode
+    car = Car.objects.filter(car_id=carid)
+    car.request_mode = requestmode
+    car.save()
 
 
 def change_request_amount(carid, requestamount):
-    Car.objects.filter(car_id=carid).request_amount = requestamount
+    car = Car.objects.filter(car_id=carid)
+    car.request_amount = requestamount
+    car.save()
 
 
 def change_queue_num(carid, queuenum):
-    Car.objects.filter(car_id=carid).queue_num = queuenum
+    car = Car.objects.filter(car_id=carid)
+    car.queue_num = queuenum
+    car.save()
 
 
 def change_request_time(carid, requesttime):
-    Car.objects.filter(car_id=carid).request_time = requesttime
+    car = Car.objects.filter(car_id=carid)
+    car.request_time = requesttime
+    car.save()
 
 
 def change_pile_state(pileid, pilestate):
-    Car.objects.filter(plie_id=pileid).working_state = pilestate
+    car = Car.objects.filter(plie_id=pileid)
+    car.working_state = pilestate
+    car.save()
 
 
 def get_total_bill(request):
@@ -174,6 +187,7 @@ def get_pay_bill(request):
         return HttpResponse(json.dumps(return_json, ensure_ascii=False))
     bill = Bill.objects.filter(bill_id=billid)
     bill.pay_state = 1
+    bill.save()
     return HttpResponse(json.dumps(return_json, ensure_ascii=False))
 
 
@@ -189,6 +203,7 @@ def power_on(request):
     pile = Bill.objects.filter(pile_id=pileid)
     if pile.working_state == my_constant.pile_state.close:
         pile.working_state = my_constant.pile_state.idle
+        pile.save()
     else:
         return_json["code"] = 0
         if pile.working_state == my_constant.pile_state.idle:
@@ -214,6 +229,7 @@ def power_off(request):
     pile = Bill.objects.filter(pile_id=pileid)
     if pile.working_state == my_constant.pile_state.idle:
         pile.working_state = my_constant.pile_state.close
+        pile.save()
     else:
         return_json["code"] = 0
         if pile.working_state == my_constant.pile_state.close:
