@@ -158,7 +158,7 @@ def get_total_bill(request):
     return HttpResponse(json.dumps(return_json, ensure_ascii=False))
 
 
-def changeCapacity(request):
+def change_capacity(request):
     json_dict = json.loads(request.body)
     return_json = {"code": 1, "message": "请求成功", "data": ""}
     carid = json_dict.get("car_id", "")
