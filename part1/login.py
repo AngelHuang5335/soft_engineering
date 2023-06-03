@@ -4,6 +4,7 @@ import json
 from django.contrib.auth.hashers import make_password, check_password
 import jwt
 import time
+from part2.operate import create_car
 
 user_list = models.User_list()
 
@@ -62,7 +63,7 @@ def user_register(request):
         user_list.user_online(user)
         user.save()
         user_id = user.id
-
+        create_car(car_id, car_capacity)
         return_json = {'code': '1', 'message': '注册成功',
                        'data': {'user_id': user_id, 'user_name': username, 'token': token, 'car_id': car_id,
                                 'car_capacity': car_capacity}}
