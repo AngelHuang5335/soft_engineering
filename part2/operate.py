@@ -4,6 +4,7 @@ from part3.models import my_constant
 from django.http import HttpResponse
 from datetime import datetime
 import json
+import random
 
 
 def create_car(carid, carcapacity):
@@ -76,7 +77,14 @@ def update_bill(carid, sign):
     bill.save()
 
 
-# def pile_broken(pile_id):
+def pile_broken():
+    piles = Pile.objects.all()
+    for pile in piles:
+        if pile.working_state != my_constant.pile_state.broken:
+            if random.randint(0, 100) < 5:
+                pile.working_state = my_constant.pile_state.broken
+                pile.sace()
+                pile_broken(pile.pile_id)
 
 
 def get_car_state(carid):
