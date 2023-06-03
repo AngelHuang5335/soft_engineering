@@ -43,6 +43,7 @@ class Queue:
         self.waiting_queue = [-1 for j in range(my_constant.waiting_area)]
         self.mode_queue = [-1 for i in range(my_constant.waiting_area)]
         self.broken_list = [[]for i in range(2)]
+        self.pile_state = [my_constant.pile_state.close for i in range(my_constant.pile_num)]
         self.queue_num = 0
     def get_new_queue_num(self):
         self.queue_num+=1
@@ -56,7 +57,7 @@ class Queue:
             end_pile_id = my_constant.pile_num
         for j in range(my_constant.charge_area):
             for i in range(start_pile_id,end_pile_id):
-                if self.pile_state[i]==my_constant.pile_state.broken:
+                if self.pile_state[i]==my_constant.pile_state.broken or self.pile_state[i]==my_constant.pile_state.close:
                     continue
                 if self.charge_queue[i][j] == -1:
                     self.charge_queue[i][j]=car_id
