@@ -158,6 +158,23 @@ def get_total_bill(request):
     return HttpResponse(json.dumps(return_json, ensure_ascii=False))
 
 
+def changeCapacity(request):
+    json_dict = json.loads(request.body)
+    return_json = {"code": 1, "message": "请求成功", "data": ""}
+    carid = json_dict.get("car_id", "")
+    carcapacity = json_dict.get("car_capacity", "")
+    if carid == "" or carcapacity is None:
+        return_json["code"] = 0
+        return_json["message"] = "缺少参数"
+        return_json["data"] = ""
+        return HttpResponse(json.dumps(return_json, ensure_ascii=False))
+    car = Car.objects.filter(car_id=carid)
+    car.car_capacity = carcapacity
+    car.save()
+    return_json["data"] = {"car_capacity": carcapacity}
+    return HttpResponse(json.dumps(return_json, ensure_ascii=False))
+
+
 def get_detail_bill(request):
     json_dict = json.loads(request.body)
     return_json = {"code": 1, "message": "请求成功", "data": ""}
