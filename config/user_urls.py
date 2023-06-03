@@ -14,7 +14,7 @@ urlpatterns = [
     path('beginCharging/', response.start_charging),
     path('getChargingState/', response.get_charging_state),
     path('endCharging/', response.end_charging),
-    #path('changeCapacity/', operate.),
+    path('changeCapacity/', operate.change_capacity),
     path('getTotalBill/', operate.get_total_bill),
     path('getDetailBill/', operate.get_detail_bill),
     path('getPayBill/', operate.get_pay_bill),

@@ -7,8 +7,6 @@ import json
 
 #def __init__():
 queue = Queue()
-for i in range(my_constant.pile_num):
-    queue.pile_state[i]=my_constant.pile_state.close
 new_price = Price.objects.all()
 my_constant.low_price=new_price[0].low_price
 my_constant.mid_price=new_price[0].mid_price
@@ -21,6 +19,12 @@ def try_charging(request):
     request_amount = json_dict.get("request_amount","")
     request_mode = json_dict.get("request_mode","")
     return_json = {"code" : 1, "message" : "请求成功", "data" : ""}
+    state,token_car_id=login.judge_user_token(request.META.get("HTTP_AUTHORIZATION"))
+    if state==0 or token_car_id!=car_id:
+        return_json["code"] = 0
+        return_json["message"] = "token验证错误"
+        return_json["data"] = ""
+        return HttpResponse(json.dumps(return_json, ensure_ascii=False))
     if car_id == "" or request_amount == "" or request_mode == "":
         return_json["code"] = 0
         return_json["message"] = "缺少参数"
@@ -68,6 +72,12 @@ def get_state(request):
     json_dict = json.loads(request.body)
     return_json = {"code" : 1, "message" : "请求成功", "data" : ""}
     car_id = json_dict.get("car_id","")
+    state,token_car_id=login.judge_user_token(request.META.get("HTTP_AUTHORIZATION"))
+    if state==0 or token_car_id!=car_id:
+        return_json["code"] = 0
+        return_json["message"] = "token验证错误"
+        return_json["data"] = ""
+        return HttpResponse(json.dumps(return_json, ensure_ascii=False))
     pile_id = queue.get_pile_id(car_id)
     request_mode = operate.get_request_mode(car_id)
     car_position = queue.get_car_position(car_id, request_mode)
@@ -84,6 +94,12 @@ def change_amount(request):
     return_json = {"code" : 1, "message" : "请求成功", "data" : ""}
     car_id = json_dict.get("car_id", "")
     request_amount = json_dict.get("request_amount", "")
+    state,token_car_id=login.judge_user_token(request.META.get("HTTP_AUTHORIZATION"))
+    if state==0 or token_car_id!=car_id:
+        return_json["code"] = 0
+        return_json["message"] = "token验证错误"
+        return_json["data"] = ""
+        return HttpResponse(json.dumps(return_json, ensure_ascii=False))
     if car_id == "" or request_amount == "":
         return_json["code"] = 0
         return_json["message"] = "缺少参数"
@@ -110,6 +126,12 @@ def change_mode(request):
     return_json = {"code" : 1, "message" : "请求成功", "data" : ""}
     car_id = json_dict.get("car_id", "")
     request_mode = json_dict.get("request_mode", "")
+    state,token_car_id=login.judge_user_token(request.META.get("HTTP_AUTHORIZATION"))
+    if state==0 or token_car_id!=car_id:
+        return_json["code"] = 0
+        return_json["message"] = "token验证错误"
+        return_json["data"] = ""
+        return HttpResponse(json.dumps(return_json, ensure_ascii=False))
     if car_id == "" or request_mode == "":
         return_json["code"] = 0
         return_json["message"] = "缺少参数"
@@ -136,6 +158,12 @@ def start_charging(request):
     json_dict = json.loads(request.body)
     return_json = {"code" : 1, "message" : "开始充电", "data" : ""}
     car_id = json_dict.get("car_id", "")
+    state,token_car_id=login.judge_user_token(request.META.get("HTTP_AUTHORIZATION"))
+    if state==0 or token_car_id!=car_id:
+        return_json["code"] = 0
+        return_json["message"] = "token验证错误"
+        return_json["data"] = ""
+        return HttpResponse(json.dumps(return_json, ensure_ascii=False))
     pile_id = queue.get_pile_id(car_id)
     car_state = operate.get_car_state(car_id)
     if car_state == my_constant.car_state.can_charging:
@@ -153,6 +181,12 @@ def get_charging_state(request):
     json_dict = json.loads(request.body)
     return_json = {"code" : 1, "message" : "查询成功", "data" : ""}
     car_id = json_dict.get("car_id", "")
+    state,token_car_id=login.judge_user_token(request.META.get("HTTP_AUTHORIZATION"))
+    if state==0 or token_car_id!=car_id:
+        return_json["code"] = 0
+        return_json["message"] = "token验证错误"
+        return_json["data"] = ""
+        return HttpResponse(json.dumps(return_json, ensure_ascii=False))
     return_json["data"]=operate.get_charging_bill(car_id)
     return HttpResponse(json.dumps(return_json, ensure_ascii=False))
 def end_car_charging(car_id):
@@ -180,18 +214,30 @@ def end_car_charging(car_id):
         operate.change_pile_state(queue.get_pile_id(car_id),my_constant.pile_state.idle)
         car_list = queue.get_car_list(car_id)
         for i in car_list:
-            operate.change_car_state(car_id, my_constant.car_state.can_charging)
+            operate.change_car_state(i, my_constant.car_state.can_charging)
         tmp_car=queue.get_new_charging_car()
         operate.change_car_state(tmp_car, my_constant.car_state.can_charging)
     return return_json
 def end_charging(request):
     json_dict = json.loads(request.body)
     car_id = json_dict.get("car_id", "")
+    state, token_car_id=login.judge_user_token(request.META.get("HTTP_AUTHORIZATION"))
+    if state==0 or token_car_id!=car_id:
+        return_json["code"] = 0
+        return_json["message"] = "token验证错误"
+        return_json["data"] = ""
+        return HttpResponse(json.dumps(return_json, ensure_ascii=False))
     return_json = end_car_charging(car_id)
     return HttpResponse(json.dumps(return_json, ensure_ascii=False))
 
 def get_queue_state(request):
     return_json = {"code" : 1, "message" : "查询成功", "data" : ""}
+    state=login.judge_admin_token(request.META.get("HTTP_AUTHORIZATION"))
+    if state==0:
+        return_json["code"] = 0
+        return_json["message"] = "token验证错误"
+        return_json["data"] = ""
+        return HttpResponse(json.dumps(return_json, ensure_ascii=False))
     car_list=queue.get_all_car()
     return_json["data"]=[]
     for i,j in car_list:
@@ -215,6 +261,12 @@ def add_price(request):
 def set_price(request):
     json_dict = json.loads(request.body)
     return_json = {"code" : 1, "message" : "修改成功", "data" : ""}
+    state=login.judge_admin_token(request.META.get("HTTP_AUTHORIZATION"))
+    if state==0:
+        return_json["code"] = 0
+        return_json["message"] = "token验证错误"
+        return_json["data"] = ""
+        return HttpResponse(json.dumps(return_json, ensure_ascii=False))
     low_price = json_dict.get("low_price", "")
     mid_price = json_dict.get("mid_price", "")
     high_price = json_dict.get("high_price", "")
@@ -242,6 +294,12 @@ def pile_recover(pile_id):
         operate.change_car_state(i,my_constant.car_state.can_charging)
 def query_pile_num(request):
     return_json = {"code" : 1, "message" : "查询成功", "data" : ""}
+    state=login.judge_admin_token(request.META.get("HTTP_AUTHORIZATION"))
+    if state==0:
+        return_json["code"] = 0
+        return_json["message"] = "token验证错误"
+        return_json["data"] = ""
+        return HttpResponse(json.dumps(return_json, ensure_ascii=False))
     data_dict={"amount":my_constant.pile_num,"fast_pile_id":"","slow_pile_id":""}
     fast_pile_id=[]
     slow_pile_id=[]
