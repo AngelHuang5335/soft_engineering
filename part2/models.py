@@ -9,7 +9,7 @@ class Car(models.Model):
     request_amount = models.FloatField(null=True)
     request_mode = models.CharField(max_length=50, null=True)
     queue_num = models.CharField(max_length=50, null=True)
-    request_time = models.DateTimeField(default=None)
+    request_time = models.DateTimeField(null=True, default=None)
 
     def __str__(self):
         return self.car_id
@@ -26,6 +26,7 @@ class Car(models.Model):
 class Pile(models.Model):
     pile_id = models.CharField(max_length=50, null=True)
     working_state = models.CharField(max_length=50, null=True)
+    charge_mode = models.CharField(max_length=50, null=True)
 
     def __str__(self):
         return self.pile_id
@@ -41,11 +42,11 @@ class Pile(models.Model):
 
 class Bill(models.Model):
     bill_id = models.CharField(max_length=50, null=True)
-    bill_date = models.DateField(default=None)
+    bill_date = models.DateField(null=True, default=None)
     charge_amount = models.FloatField(null=True)
     charge_duration = models.FloatField(null=True)
-    start_time = models.DateTimeField(default=None)
-    end_time = models.DateTimeField(default=None)
+    start_time = models.DateTimeField(null=True, default=None)
+    end_time = models.DateTimeField(null=True, default=None)
     total_charge_fee = models.FloatField(null=True)
     total_service_fee = models.FloatField(null=True)
     total_fee = models.FloatField(null=True)

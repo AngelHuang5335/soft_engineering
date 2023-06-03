@@ -1,5 +1,5 @@
 from part1.clock import get_simulated_time
-from part2.models import Car, Bill
+from part2.models import Car, Bill, Pile
 from part3.models import my_constant
 from django.http import HttpResponse
 from datetime import datetime
@@ -224,6 +224,29 @@ def power_off(request):
             return_json["message"] = "充电桩已损坏"
         return_json["data"] = ""
         return HttpResponse(json.dumps(return_json, ensure_ascii=False))
+    return HttpResponse(json.dumps(return_json, ensure_ascii=False))
+
+
+def query_pile_state(request):
+    json_dict = json.loads(request.body)
+    return_json = {"code": 1, "message": "请求成功", "data": ""}
+    pileid = json_dict.get("pile_id", "")
+    if pileid == "":
+        return_json["code"] = 0
+        return_json["message"] = "缺少参数"
+        return_json["data"] = ""
+        return HttpResponse(json.dumps(return_json, ensure_ascii=False))
+    pile = Pile.objects.filter(pile_id=pileid)
+    bills = Bill.objects.filter(pile_id=pileid)
+    totalChargeNum = 0
+    totalChargeTime = totalCapacity = 0.0
+    for bill in bills:
+        totalChargeNum += 1
+        totalChargeTime += bill.charge_duration
+        totalCapacity += bill.charge_amount
+    return_json["data"] = {"workingState": pile.working_state, "totalChargeNum": totalChargeNum,
+                           "totalChargeTime": totalChargeTime, "totalCapacity": totalCapacity,
+                           "charge_mode": pile.charge_mode}
     return HttpResponse(json.dumps(return_json, ensure_ascii=False))
 
 
