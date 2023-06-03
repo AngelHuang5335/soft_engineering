@@ -93,6 +93,7 @@ def get_pile_state():
             pile.broken_time += 1
             if pile.broken_time >= 10:
                 pile.working_state = my_constant.pile_state.idle
+                response.pile_recover(pile.pile_id)
         elif random.randint(0, 100) < 5:
             pile.working_state = my_constant.pile_state.broken
             pile.broken_time = 0
