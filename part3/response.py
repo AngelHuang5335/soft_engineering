@@ -7,6 +7,8 @@ import json
 
 #def __init__():
 queue = Queue()
+for i in range(my_constant.pile_num):
+    queue.pile_state[i]=my_constant.pile_state.close
 new_price = Price.objects.all()
 my_constant.low_price=new_price[0].low_price
 my_constant.mid_price=new_price[0].mid_price
@@ -174,7 +176,7 @@ def end_car_charging(car_id):
         operate.change_car_state(tmp_car, my_constant.car_state.can_charging)
     elif car_state ==my_constant.car_state.charging:
         operate.change_car_state(car_id, my_constant.car_state.end_charging)
-        operate.update_bill(car_id)
+        operate.update_bill(car_id,0)
         operate.change_pile_state(queue.get_pile_id(car_id),my_constant.pile_state.idle)
         car_list = queue.get_car_list(car_id)
         for i in car_list:
@@ -229,7 +231,7 @@ def pile_broken(pile_id):
     for i in car_list:
         car_state=operate.get_car_state(i)
         if car_state==my_constant.car_state.charging:
-            operate.update_bill(i)
+            operate.update_bill(i,1)
             operate.change_car_state(i,my_constant.car_state.charging_area)
         elif car_state==my_constant.car_state.charging_area or car_state==my_constant.car_state.can_charging:
             operate.change_car_state(i,my_constant.car_state.charging_area)
