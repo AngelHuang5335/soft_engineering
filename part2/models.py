@@ -27,6 +27,7 @@ class Pile(models.Model):
     pile_id = models.CharField(max_length=50, null=True)
     working_state = models.CharField(max_length=50, null=True)
     charge_mode = models.CharField(max_length=50, null=True)
+    broken_time = models.IntegerField(null=True, default=0)
 
     def __str__(self):
         return self.pile_id
@@ -50,7 +51,7 @@ class Bill(models.Model):
     total_charge_fee = models.FloatField(null=True)
     total_service_fee = models.FloatField(null=True)
     total_fee = models.FloatField(null=True)
-    pay_state = models.IntegerField(default=0)
+    pay_state = models.IntegerField(null=True, default=0)
 
     car_id = models.ForeignKey(Car, on_delete=models.CASCADE)
     pile_id = models.ForeignKey(Pile, on_delete=models.CASCADE)

@@ -1,5 +1,6 @@
-from part1.clock import get_simulated_time
+from part1.clock import get_simulated_time, user_end_charge, user_charge
 from part2.models import Car, Bill, Pile
+from part3 import response
 from part3.models import my_constant
 from django.http import HttpResponse
 from datetime import datetime
@@ -16,6 +17,12 @@ def create_bill(carid, pileid):
     Bill.objects.create(bill_id=datetime.strftime(simulated_time, "%Y%m%d%H%M%S") + carid,
                         bill_data=simulated_time.date(), start_timeend_time=simulated_time, car_id=carid,
                         pile_id=pileid)
+    car = Car.objects.filter(car_id=carid)
+    if car.request_mode == "F":
+        charge_time = car.request_amount / my_constant.slow_charging_v
+    elif car.request_mode == "T":
+        charge_time = car.request_amount / my_constant.fast_charging_v
+    user_charge(charge_time, carid)
 
 
 def calculate_charge_fee(hou, minu, sec):
@@ -75,16 +82,23 @@ def update_bill(carid, sign):
     bill.total_service_fee = service_fee
     bill.total_fee = charge_fee + service_fee
     bill.save()
+    user_end_charge(carid)
 
 
-def pile_broken():
+# 模拟充电桩损坏
+def get_pile_state():
     piles = Pile.objects.all()
     for pile in piles:
-        if pile.working_state != my_constant.pile_state.broken:
-            if random.randint(0, 100) < 5:
-                pile.working_state = my_constant.pile_state.broken
-                pile.sace()
-                pile_broken(pile.pile_id)
+        if pile.working_state == my_constant.pile_state.broken:
+            pile.broken_time += 1
+            if pile.broken_time >= 10:
+                pile.working_state = my_constant.pile_state.idle
+        elif random.randint(0, 100) < 5:
+            pile.working_state = my_constant.pile_state.broken
+            pile.broken_time = 0
+            response.pile_broken(pile.pile_id)
+        pile.save()
+    # Clock2(3000)
 
 
 def get_car_state(carid):
@@ -109,9 +123,9 @@ def get_request_time(carid):
 
 def get_charging_bill(carid):
     bill = Bill.objects.filter(car_id=carid).last()
-    return {"car_id": carid, "bill_date": bill.bill_date, "bill_id": bill.bill_id, "pile_id":
-            bill.pile_id, "charge_amount": bill.charge_amount, "charge_duration": bill.charge_duration,
-            "start_time": bill.start_time, "end_time": bill.end_time, "total_charge_fee": bill.total_charge_fee,
+    return {"car_id": carid, "bill_date": bill.bill_date, "bill_id": bill.bill_id, "pile_id": bill.pile_id,
+            "charge_amount": bill.charge_amount, "charge_duration": bill.charge_duration, "start_time":
+                bill.start_time, "end_time": bill.end_time, "total_charge_fee": bill.total_charge_fee,
             "total_service_fee": bill.total_service_fee, "total_fee": bill.total_fee}
 
 
