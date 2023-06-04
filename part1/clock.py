@@ -2,6 +2,7 @@ import threading
 import time
 from datetime import datetime
 from part3 import response
+from part2.operate import get_pile_state
 
 
 class Timer:
@@ -20,9 +21,27 @@ def get_simulated_time():
     return Timer().get_time()
 
 
+class Clock2:
+    def __init__(self, time):
+        self.time = time
+
+    def start(self):
+        threading.Thread(target=self.run).start()
+
+    def run(self):
+        # 等待持续时间
+        time.sleep(self.time)
+        # 提示用户
+        get_pile_state()
+
+
+def start_get_pile_state(time):
+    Clock2(time).start()
+
+
 class Clock:
     def __init__(self, charge_time, car_id):
-        self.real_time = 500 * charge_time / Timer.coefficient  # charge_time为小时，换算为秒并除以模拟时间系数
+        self.real_time = 3600 * charge_time / Timer.coefficient  # charge_time为小时，换算为秒并除以模拟时间系数
         self.car_id = car_id
 
     def start_charge(self):
@@ -31,7 +50,6 @@ class Clock:
 
     def run(self):
         print('car_id: {} start at {}'.format(self.car_id, datetime.now()))
-        time.sleep(0.2)
         # 等待持续时间
         time.sleep(self.real_time)
         # 提示用户

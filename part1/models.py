@@ -41,7 +41,7 @@ class User_list:
             return 0
 
     def judge_user_token(self, token):
-        if self.judge_user_online(token):
+        if self.judge_user_online(token) == 0:
             return 0, 0  # 用户未登录
         else:
             user = User.objects.get(token=token)
@@ -51,7 +51,7 @@ class User_list:
                 return 0, 0
 
     def judge_admin_token(self, token):
-        if self.judge_user_online(token):
+        if self.judge_user_online(token) == 0:
             return 0  # 用户未登录
         else:
             user = User.objects.get(token=token)
