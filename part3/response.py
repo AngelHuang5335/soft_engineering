@@ -305,9 +305,9 @@ def query_pile_num(request):
     fast_pile_id=[]
     slow_pile_id=[]
     for i in range(my_constant.fast_pile):
-        fast_pile_id.append(i)
-    for i in range(my_constant.pile_num):
-        slow_pile_id.append(i)
+        fast_pile_id.append({"pile_id":i})
+    for i in range(my_constant.fast_pile,my_constant.pile_num):
+        slow_pile_id.append({"pile_id":i})
     data_dict["fast_pile_id"]=fast_pile_id
     data_dict["slow_pile_id"]=slow_pile_id
     return_json["data"]=data_dict

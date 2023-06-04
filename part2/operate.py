@@ -19,7 +19,7 @@ def create_bill(carid, pileid):
     Bill.objects.create(bill_id=datetime.strftime(simulated_time, "%Y%m%d%H%M%S") + carid,
                         bill_data=simulated_time.date(), start_timeend_time=simulated_time, car_id=carid,
                         pile_id=pileid)
-    car = Car.objects.filter(car_id=carid)
+    car = Car.objects.filter(car_id=carid)[0]
     if car.request_mode == "F":
         charge_time = car.request_amount / my_constant.slow_charging_v
     elif car.request_mode == "T":
@@ -57,7 +57,7 @@ def calculate_charge_fee(hou, minu, sec):
 
 
 def update_bill(carid, sign):
-    car = Car.objects.filter(car_id=carid)
+    car = Car.objects.filter(car_id=carid)[0]
     bill = Bill.objects.filter(car_id=carid).last()
     starttime = bill.start_time
     endtime = get_simulated_time()
@@ -120,23 +120,23 @@ def get_pile_state():
 
 
 def get_car_state(carid):
-    return Car.objects.filter(car_id=carid).car_state
+    return Car.objects.filter(car_id=carid)[0].car_state
 
 
 def get_car_capacity(carid):
-    return Car.objects.filter(car_id=carid).car_capacity
+    return Car.objects.filter(car_id=carid)[0].car_capacity
 
 
 def get_request_mode(carid):
-    return Car.objects.filter(car_id=carid).request_mode
+    return Car.objects.filter(car_id=carid)[0].request_mode
 
 
 def get_queue_num(carid):
-    return Car.objects.filter(car_id=carid).queue_num
+    return Car.objects.filter(car_id=carid)[0].queue_num
 
 
 def get_request_time(carid):
-    return Car.objects.filter(car_id=carid).request_time
+    return Car.objects.filter(car_id=carid)[0].request_time
 
 
 def get_charging_bill(carid):
@@ -148,37 +148,37 @@ def get_charging_bill(carid):
 
 
 def change_car_state(carid, carstate):
-    car = Car.objects.filter(car_id=carid)
+    car = Car.objects.filter(car_id=carid)[0]
     car.car_state = carstate
     car.save()
 
 
 def change_request_mode(carid, requestmode):
-    car = Car.objects.filter(car_id=carid)
+    car = Car.objects.filter(car_id=carid)[0]
     car.request_mode = requestmode
     car.save()
 
 
 def change_request_amount(carid, requestamount):
-    car = Car.objects.filter(car_id=carid)
+    car = Car.objects.filter(car_id=carid)[0]
     car.request_amount = requestamount
     car.save()
 
 
 def change_queue_num(carid, queuenum):
-    car = Car.objects.filter(car_id=carid)
+    car = Car.objects.filter(car_id=carid)[0]
     car.queue_num = queuenum
     car.save()
 
 
 def change_request_time(carid, requesttime):
-    car = Car.objects.filter(car_id=carid)
+    car = Car.objects.filter(car_id=carid)[0]
     car.request_time = requesttime
     car.save()
 
 
 def change_pile_state(pileid, pilestate):
-    car = Car.objects.filter(plie_id=pileid)
+    car = Car.objects.filter(plie_id=pileid)[0]
     car.working_state = pilestate
     car.save()
 
@@ -215,7 +215,7 @@ def change_capacity(request):
         return_json["message"] = "缺少参数"
         return_json["data"] = ""
         return HttpResponse(json.dumps(return_json, ensure_ascii=False))
-    car = Car.objects.filter(car_id=carid)
+    car = Car.objects.filter(car_id=carid)[0]
     car.car_capacity = carcapacity
     car.save()
     return_json["data"] = {"car_capacity": carcapacity}
@@ -231,7 +231,7 @@ def get_detail_bill(request):
         return_json["message"] = "缺少参数"
         return_json["data"] = ""
         return HttpResponse(json.dumps(return_json, ensure_ascii=False))
-    bill = Bill.objects.filter(bill_id=billid)
+    bill = Bill.objects.filter(bill_id=billid)[0]
     return_json["data"] = {"car_id": bill.car_id, "bill_date": bill.bill_date, "bill_id": billid,
                            "pile_id": bill.pile_id, "charge_amount": bill.charge_amount, "charge_duration":
                                bill.charge_duration, "start_time": bill.start_time, "end_time": bill.end_time,
@@ -249,7 +249,7 @@ def get_pay_bill(request):
         return_json["message"] = "缺少参数"
         return_json["data"] = ""
         return HttpResponse(json.dumps(return_json, ensure_ascii=False))
-    bill = Bill.objects.filter(bill_id=billid)
+    bill = Bill.objects.filter(bill_id=billid)[0]
     bill.pay_state = 1
     bill.save()
     return HttpResponse(json.dumps(return_json, ensure_ascii=False))
@@ -264,7 +264,7 @@ def power_on(request):
         return_json["message"] = "缺少参数"
         return_json["data"] = ""
         return HttpResponse(json.dumps(return_json, ensure_ascii=False))
-    pile = Bill.objects.filter(pile_id=pileid)
+    pile = Bill.objects.filter(pile_id=pileid)[0]
     if pile.working_state == my_constant.pile_state.close:
         pile.working_state = my_constant.pile_state.idle
         pile.save()
@@ -290,7 +290,7 @@ def power_off(request):
         return_json["message"] = "缺少参数"
         return_json["data"] = ""
         return HttpResponse(json.dumps(return_json, ensure_ascii=False))
-    pile = Bill.objects.filter(pile_id=pileid)
+    pile = Bill.objects.filter(pile_id=pileid)[0]
     if pile.working_state == my_constant.pile_state.idle:
         pile.working_state = my_constant.pile_state.close
         pile.save()
@@ -316,7 +316,7 @@ def query_pile_state(request):
         return_json["message"] = "缺少参数"
         return_json["data"] = ""
         return HttpResponse(json.dumps(return_json, ensure_ascii=False))
-    pile = Pile.objects.filter(pile_id=pileid)
+    pile = Pile.objects.filter(pile_id=pileid)[0]
     bills = Bill.objects.filter(pile_id=pileid)
     totalChargeNum = 0
     totalChargeTime = totalCapacity = 0.0
