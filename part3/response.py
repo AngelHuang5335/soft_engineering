@@ -36,6 +36,11 @@ def try_charging(request):
         return_json["message"] = "请先支付之前的订单"
         return_json["data"] = ""
         return HttpResponse(json.dumps(return_json, ensure_ascii=False))
+    if request_amount<=0:
+        return_json["code"] = 0
+        return_json["message"] = "请求电量小于等于0"
+        return_json["data"] = ""
+        return HttpResponse(json.dumps(return_json, ensure_ascii=False))
     car_capacity = operate.get_car_capacity(car_id)
     if request_amount>car_capacity:
         return_json["code"] = 0
@@ -103,6 +108,11 @@ def change_amount(request):
     if car_id == "" or request_amount == "":
         return_json["code"] = 0
         return_json["message"] = "缺少参数"
+        return_json["data"] = ""
+        return HttpResponse(json.dumps(return_json, ensure_ascii=False))
+    if request_amount<=0:
+        return_json["code"] = 0
+        return_json["message"] = "请求电量小于等于0"
         return_json["data"] = ""
         return HttpResponse(json.dumps(return_json, ensure_ascii=False))
     car_state = operate.get_car_state(car_id)
@@ -244,12 +254,12 @@ def get_queue_state(request):
     for i,j in car_list:
         tmp_dict = {}
         tmp_dict["user_id"]=login.get_user_id(i)
-        tmp_dict["car_capacity"]="2233"#get_car_capacity(i)
-        tmp_dict["request_amount"]="3344"#get_request_amount(i)
-        tmp_dict["wait_time"]="12312"#get_waiting_time(i)
+        tmp_dict["car_capacity"]=operate.get_car_capacity(i)
+        tmp_dict["request_amount"]=operate.get_request_amount(i)
+        tmp_dict["wait_time"]=operate.get_waiting_time(i)
         tmp_dict["pile_id"]=j
-        tmp_dict["car_state"]=my_constant.car_state.wating#get_car_state(i)
-        tmp_dict["request_mode"]="F"#get_request_mode(i)
+        tmp_dict["car_state"]=operate.get_car_state(i)
+        tmp_dict["request_mode"]=operate.get_request_mode(i)
         return_json["data"].append(tmp_dict)
     return HttpResponse(json.dumps(return_json, ensure_ascii=False))
 

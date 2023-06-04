@@ -195,10 +195,10 @@ def get_total_bill(request):
         return_json["data"] = ""
         return HttpResponse(json.dumps(return_json, ensure_ascii=False))
     lst = []
-    if billdate is None:
+    if billdate=="":
         bills = Bill.objects.filter(car_id=carid)
     else:
-        bills = Bill.objects.filter(car_id=carid, bill_data=billdate)
+        bills = Bill.objects.filter(car_id=carid, bill_date=billdate)
     for bill in bills:
         lst.append({"car_id": carid, "bill_date": bill.bill_date, "bill_id": bill.bill_id, "pile_id": bill.pile_id,
                     "start_time": bill.start_time, "end_time": bill.end_time, "total_fee": bill.total_fee})
@@ -340,7 +340,7 @@ def query_report(request):
         return_json["message"] = "缺少参数"
         return_json["data"] = ""
         return HttpResponse(json.dumps(return_json, ensure_ascii=False))
-    bills = Bill.objects.filter(pile_id=pileid, bill_date_gte=start_date, bill_date_lte=start_date)
+    bills = Bill.objects.filter(pile_id=pileid, bill_date__gte=start_date, bill_date__lte=end_date)
     total_charge_num = 0
     total_charge_time = total_capacity = total_charge_fee = total_service_fee = total_fee = 0.0
     for bill in bills:

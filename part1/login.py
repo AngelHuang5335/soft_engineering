@@ -4,7 +4,7 @@ import json
 from django.contrib.auth.hashers import make_password, check_password
 import jwt
 import time
-from part2.operate import create_car
+from part2.operate import create_car, get_car_capacity
 
 user_list = models.User_list()
 
@@ -58,7 +58,7 @@ def user_register(request):
             return HttpResponse(json.dumps({'code': '0', 'message': '车辆编号已存在'}, ensure_ascii=False))
         password = make_password(password)
         token = generate_token(username)
-        user = models.User(username=username, password=password, car_id=car_id, car_capacity=car_capacity, is_admin=0,
+        user = models.User(username=username, password=password, car_id=car_id, is_admin=0,
                            token=token)
         user_list.user_online(user)
         user.save()
@@ -88,7 +88,7 @@ def user_login(request):
                     return_json = {'code': '1', 'message': '登录成功',
                                    'data': {'user_id': user.id, 'user_name': username, 'token': user.token,
                                             'car_id': user.car_id,
-                                            'car_capacity': user.car_capacity}}
+                                            'car_capacity': get_car_capacity(user.car_id)}}
                     return HttpResponse(json.dumps(return_json, ensure_ascii=False))
             else:
                 return HttpResponse(json.dumps({'code': '0', 'message': '用户名与密码不匹配'}, ensure_ascii=False))

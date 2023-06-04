@@ -5,7 +5,6 @@ class User(models.Model):
     username = models.CharField(max_length=50, null=True)
     password = models.CharField(max_length=50)
     car_id = models.CharField(max_length=50, null=True)
-    car_capacity = models.FloatField(null=True)
     is_admin = models.IntegerField()
     token = models.CharField(max_length=200, null=True)
 
