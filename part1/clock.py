@@ -2,7 +2,6 @@ import threading
 import time
 from datetime import datetime
 from part3 import response
-from part2.operate import get_pile_state
 
 
 class Timer:
@@ -19,24 +18,6 @@ class Timer:
 
 def get_simulated_time():
     return Timer().get_time()
-
-
-class Clock2:
-    def __init__(self, time):
-        self.time = time
-
-    def start(self):
-        threading.Thread(target=self.run).start()
-
-    def run(self):
-        # 等待持续时间
-        time.sleep(self.time)
-        # 提示用户
-        get_pile_state()
-
-
-def start_get_pile_state(time):
-    Clock2(time).start()
 
 
 class Clock:

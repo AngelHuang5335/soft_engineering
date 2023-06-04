@@ -1,4 +1,4 @@
-from part1.clock import get_simulated_time, user_end_charge, user_charge, start_get_pile_state
+from part1.clock import get_simulated_time, user_end_charge, user_charge
 from part2.models import Car, Bill, Pile
 from part3 import response
 from part3.models import my_constant
@@ -6,6 +6,8 @@ from django.http import HttpResponse
 from datetime import datetime
 import json
 import random
+import threading
+import time
 
 
 def create_car(carid, carcapacity):
@@ -84,7 +86,22 @@ def update_bill(carid, sign):
     bill.save()
     user_end_charge(carid)
 
+class Clock2:
+    def __init__(self, time):
+        self.time = time
 
+    def start(self):
+        threading.Thread(target=self.run).start()
+
+    def run(self):
+        # 等待持续时间
+        time.sleep(self.time)
+        # 提示用户
+        get_pile_state()
+
+
+def start_get_pile_state(time):
+    Clock2(time).start()
 # 模拟充电桩损坏
 def get_pile_state():
     piles = Pile.objects.all()
