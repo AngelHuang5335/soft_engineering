@@ -1,4 +1,5 @@
 from django.db import models
+from part3.models import my_constant
 
 
 # Create your models here.
@@ -23,15 +24,16 @@ class Car(models.Model):
         verbose_name_plural = verbose_name
 
 
-class Pile(models.Model):
-    pile_id = models.CharField(max_length=50, null=True)
-    working_state = models.CharField(max_length=50, null=True)
-    charge_mode = models.CharField(max_length=50, null=True)
-    broken_time = models.IntegerField(null=True, default=0)
+class Pile():
+    def __init__(self,pile_id):
+        self.pile_id=pile_id
+        self.working_state=my_constant.pile_state.close
+        self.charge_mode="T" if pile_id<my_constant.fast_pile else "F"
+        self.broken_time=0
 
     def __str__(self):
         return self.pile_id
-
+'''
     class Meta:
         # 定义数据表名
         db_table = 'Pile'
@@ -39,6 +41,7 @@ class Pile(models.Model):
         verbose_name = '充电桩'
         # 表别名复数，用于英文显示
         verbose_name_plural = verbose_name
+'''
 
 
 class Bill(models.Model):
@@ -54,7 +57,7 @@ class Bill(models.Model):
     pay_state = models.IntegerField(null=True, default=0)
 
     car_id = models.ForeignKey(Car, on_delete=models.CASCADE)
-    pile_id = models.ForeignKey(Pile, on_delete=models.CASCADE)
+    pile_id = models.IntegerField(null=True)
 
     def __str__(self):
         return self.bill_id

@@ -9,6 +9,9 @@ import random
 import threading
 import time
 
+pile_list=[]
+for i in range(my_constant.pile_num):
+    pile_list.append(Pile(i))
 
 def create_car(carid, carcapacity):
     Car.objects.create(car_id=carid, car_capacity=carcapacity)
@@ -104,8 +107,7 @@ def start_get_pile_state(time):
     Clock2(time).start()
 # 模拟充电桩损坏
 def get_pile_state():
-    piles = Pile.objects.all()
-    for pile in piles:
+    for pile in pile_list:
         if pile.working_state == my_constant.pile_state.broken:
             pile.broken_time += 1
             if pile.broken_time >= 10:
@@ -115,7 +117,6 @@ def get_pile_state():
             pile.working_state = my_constant.pile_state.broken
             pile.broken_time = 0
             response.pile_broken(pile.pile_id)
-        pile.save()
     start_get_pile_state(3000)
 
 
@@ -264,10 +265,9 @@ def power_on(request):
         return_json["message"] = "缺少参数"
         return_json["data"] = ""
         return HttpResponse(json.dumps(return_json, ensure_ascii=False))
-    pile = Bill.objects.filter(pile_id=pileid)[0]
+    pile = pile_list[pileid]
     if pile.working_state == my_constant.pile_state.close:
         pile.working_state = my_constant.pile_state.idle
-        pile.save()
     else:
         return_json["code"] = 0
         if pile.working_state == my_constant.pile_state.idle:
@@ -290,10 +290,9 @@ def power_off(request):
         return_json["message"] = "缺少参数"
         return_json["data"] = ""
         return HttpResponse(json.dumps(return_json, ensure_ascii=False))
-    pile = Bill.objects.filter(pile_id=pileid)[0]
+    pile = pile_list[pileid]
     if pile.working_state == my_constant.pile_state.idle:
         pile.working_state = my_constant.pile_state.close
-        pile.save()
     else:
         return_json["code"] = 0
         if pile.working_state == my_constant.pile_state.close:
@@ -316,7 +315,7 @@ def query_pile_state(request):
         return_json["message"] = "缺少参数"
         return_json["data"] = ""
         return HttpResponse(json.dumps(return_json, ensure_ascii=False))
-    pile = Pile.objects.filter(pile_id=pileid)[0]
+    pile = pile_list[pileid]
     bills = Bill.objects.filter(pile_id=pileid)
     totalChargeNum = 0
     totalChargeTime = totalCapacity = 0.0
