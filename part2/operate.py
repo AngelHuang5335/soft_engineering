@@ -1,4 +1,4 @@
-from part1.clock import get_simulated_time, user_end_charge, user_charge
+from part1.clock import get_simulated_time, user_end_charge, user_charge, start_get_pile_state
 from part2.models import Car, Bill, Pile
 from part3 import response
 from part3.models import my_constant
@@ -99,7 +99,7 @@ def get_pile_state():
             pile.broken_time = 0
             response.pile_broken(pile.pile_id)
         pile.save()
-    # Clock2(3000)
+    start_get_pile_state(3000)
 
 
 def get_car_state(carid):
