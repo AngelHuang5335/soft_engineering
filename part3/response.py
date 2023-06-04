@@ -69,6 +69,8 @@ def try_charging(request):
     return HttpResponse(json.dumps(return_json, ensure_ascii=False))
 
 def get_state(request):
+    if request.method != "POST":
+        return HttpResponse(json.dumps({}, ensure_ascii=False))
     json_dict = json.loads(request.body)
     return_json = {"code" : 1, "message" : "请求成功", "data" : ""}
     car_id = json_dict.get("car_id","")
@@ -220,6 +222,7 @@ def end_car_charging(car_id):
     return return_json
 def end_charging(request):
     json_dict = json.loads(request.body)
+    return_json = {"code" : 1, "message" : "充电结束", "data" : ""}
     car_id = json_dict.get("car_id", "")
     state, token_car_id=login.judge_user_token(request.META.get("HTTP_AUTHORIZATION"))
     if state==0 or token_car_id!=car_id:
