@@ -58,20 +58,19 @@ def try_charging(request):
     operate.change_request_amount(car_id, request_amount)
     operate.change_queue_num(car_id, queue_num)
     operate.change_request_time(car_id)
+    request_time = operate.get_request_time(car_id)
     if state == 1:
         operate.change_car_state(car_id, my_constant.car_state.charging_area)
         return_json["data"] = {"car_position" : pile_id, "car_state": my_constant.car_state.charging_area,
-                           "queue_num" : queue_num, "request_time": time.strftime('%Y-%m-%d %H:%M:%S', time.localtime())}#get_current_time
+                           "queue_num" : queue_num, "request_time": request_time.strftime('%Y-%m-%d %H:%M:%S')}#get_current_time
     elif state == 0:
         operate.change_car_state(car_id, my_constant.car_state.can_charging)
         return_json["data"] = {"car_position" : pile_id, "car_state": my_constant.car_state.charging_area,
-                           "queue_num" : queue_num, "request_time": time.strftime('%Y-%m-%d %H:%M:%S', time.localtime())}#get_current_time
+                           "queue_num" : queue_num, "request_time": request_time.strftime('%Y-%m-%d %H:%M:%S')}#get_current_time
     else:
         operate.change_car_state(car_id, my_constant.car_state.wating)
         return_json["data"] = {"car_position" : pile_id, "car_state": my_constant.car_state.wating,
-                           "queue_num" : queue_num, "request_time": time.strftime('%Y-%m-%d %H:%M:%S', time.localtime())}#get_current_time
-    return_json["data"] = {"car_position" : pile_id, "car_state" : my_constant.car_state.charging_area,
-                           "queue_num" : queue_num, "request_time" : time.strftime('%Y-%m-%d %H:%M:%S', time.localtime())}#get_current_time
+                           "queue_num" : queue_num, "request_time": request_time.strftime('%Y-%m-%d %H:%M:%S')}#get_current_time
     return HttpResponse(json.dumps(return_json, ensure_ascii=False))
 
 def get_state(request):
@@ -90,8 +89,10 @@ def get_state(request):
     car_state = operate.get_car_state(car_id)
     queue_num = operate.get_queue_num(car_id)
     request_time = operate.get_request_time(car_id)
+    request_amount = operate.get_request_amount(car_id)
     return_json["data"]={"car_position": car_position, "car_state": car_state, "queue_num": queue_num,
-                         "request_time": request_time, "pile_id": pile_id, "request_mode": request_mode}
+                         "request_time": request_time.strftime('%Y-%m-%d %H:%M:%S'), "pile_id": pile_id,
+                         "request_mode": request_mode, "request_amount":request_amount}
     return HttpResponse(json.dumps(return_json, ensure_ascii=False))
 def change_amount(request):
     json_dict = json.loads(request.body)
@@ -161,7 +162,7 @@ def change_mode(request):
     request_time=operate.get_request_time(car_id)
     operate.change_car_state(car_id, my_constant.car_state.wating)
     return_json["data"] = {"car_position" : pile_id, "car_state": my_constant.car_state.wating,
-                           "queue_num" : queue_num, "request_time": request_time}
+                           "queue_num" : queue_num, "request_time": request_time.strftime('%Y-%m-%d %H:%M:%S')}
     return HttpResponse(json.dumps(return_json, ensure_ascii=False))
 
 def start_charging(request):

@@ -131,6 +131,8 @@ def get_car_capacity(carid):
 def get_request_mode(carid):
     return Car.objects.filter(car_id=carid)[0].request_mode
 
+def get_request_amount(carid):
+    return Car.objects.filter(car_id=carid)[0].request_amount
 
 def get_queue_num(carid):
     return Car.objects.filter(car_id=carid)[0].queue_num
