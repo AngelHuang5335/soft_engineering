@@ -2,7 +2,6 @@ from django.http import HttpResponse
 from part3.models import Queue,my_constant,Price
 from part1 import login
 from part2 import operate
-import time
 import json
 
 #def __init__():
@@ -180,7 +179,7 @@ def start_charging(request):
     car_state = operate.get_car_state(car_id)
     if car_state == my_constant.car_state.can_charging:
         operate.change_car_state(car_id,my_constant.car_state.charging)
-        operate.start_bill(car_id)
+        operate.create_bill(car_id, pile_id)
         car_list = queue.get_car_list(car_id)
         for i in car_list:
             operate.change_car_state(i, my_constant.car_state.charging_area)
@@ -213,11 +212,11 @@ def end_car_charging(car_id):
         operate.change_car_state(car_id, my_constant.car_state.idle)
     elif car_state == my_constant.car_state.charging_area:
         operate.change_car_state(car_id, my_constant.car_state.idle)
-        tmp_car=queue.get_new_charging_car()
+        tmp_car=queue.get_new_charging_car(car_id)
         operate.change_car_state(tmp_car, my_constant.car_state.charging_area)
     elif car_state == my_constant.car_state.can_charging:
         operate.change_car_state(car_id, my_constant.car_state.idle)
-        tmp_car=queue.get_new_charging_car()
+        tmp_car=queue.get_new_charging_car(car_id)
         operate.change_car_state(tmp_car, my_constant.car_state.can_charging)
     elif car_state ==my_constant.car_state.charging:
         operate.change_car_state(car_id, my_constant.car_state.end_charging)
@@ -226,7 +225,7 @@ def end_car_charging(car_id):
         car_list = queue.get_car_list(car_id)
         for i in car_list:
             operate.change_car_state(i, my_constant.car_state.can_charging)
-        tmp_car=queue.get_new_charging_car()
+        tmp_car=queue.get_new_charging_car(car_id)
         operate.change_car_state(tmp_car, my_constant.car_state.can_charging)
     return return_json
 def end_charging(request):
