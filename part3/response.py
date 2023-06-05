@@ -31,6 +31,7 @@ def try_charging(request):
         return_json["data"] = ""
         return HttpResponse(json.dumps(return_json, ensure_ascii=False))
     car_state = operate.get_car_state(car_id)
+    request_amount=float(request_amount)
     if car_state==my_constant.car_state.end_charging:
         return_json["code"] = 0
         return_json["message"] = "请先支付之前的订单"
@@ -91,8 +92,6 @@ def get_state(request):
     request_time = operate.get_request_time(car_id)
     return_json["data"]={"car_position": car_position, "car_state": car_state, "queue_num": queue_num,
                          "request_time": request_time, "pile_id": pile_id, "request_mode": request_mode}
-    return_json["data"] = {"car_position": 2, "car_state": my_constant.car_state.wating, "queue_num": "4",
-                         "request_time": time.strftime('%Y-%m-%d %H:%M:%S', time.localtime()), "pile_id": pile_id, "request_mode": "F"}
     return HttpResponse(json.dumps(return_json, ensure_ascii=False))
 def change_amount(request):
     json_dict = json.loads(request.body)
@@ -110,6 +109,7 @@ def change_amount(request):
         return_json["message"] = "缺少参数"
         return_json["data"] = ""
         return HttpResponse(json.dumps(return_json, ensure_ascii=False))
+    request_amount=float(request_amount)
     if request_amount<=0:
         return_json["code"] = 0
         return_json["message"] = "请求电量小于等于0"
@@ -209,7 +209,6 @@ def end_car_charging(car_id):
     if car_state == my_constant.car_state.wating:
         queue.del_wating(car_id)
         operate.change_car_state(car_id, my_constant.car_state.idle)
-        return HttpResponse(json.dumps(return_json, ensure_ascii=False))
     elif car_state == my_constant.car_state.charging_area:
         operate.change_car_state(car_id, my_constant.car_state.idle)
         tmp_car=queue.get_new_charging_car()

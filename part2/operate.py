@@ -172,9 +172,9 @@ def change_queue_num(carid, queuenum):
     car.save()
 
 
-def change_request_time(carid, requesttime):
+def change_request_time(carid):
     car = Car.objects.filter(car_id=carid)[0]
-    car.request_time = requesttime
+    car.request_time = get_simulated_time()
     car.save()
 
 

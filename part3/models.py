@@ -15,7 +15,7 @@ class my_constant:
         broken = "损坏"
     class car_state():
         idle = "空闲"
-        wating = "处于等待区"
+        wating = "处于等候区"
         charging_area = "处于充电区"
         can_charging = "允许充电"
         charging = "正在充电"
@@ -61,7 +61,10 @@ class Queue:
                     continue
                 if self.charge_queue[i][j] == -1:
                     self.charge_queue[i][j]=car_id
-                    return 0,i,str(self.get_new_queue_num())
+                    if self.pile_state[i]==my_constant.pile_state.idle:
+                        return 0,i,str(self.get_new_queue_num())
+                    else:
+                        return 1, i, str(self.get_new_queue_num())
         for i in range(my_constant.waiting_area):
             if self.mode_queue == charge_mode:
                 queue_cnt += 1
