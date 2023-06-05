@@ -117,9 +117,13 @@ def get_request_time(carid):
 
 def get_charging_bill(carid):
     bill = Bill.objects.filter(car_id=carid).last()
+    if bill.end_time == None:
+        end_time=None
+    else:
+        end_time=bill.end_time.strftime('%Y-%m-%d %H:%M:%S')
     return {"car_id": carid, "bill_date": bill.bill_date.strftime('%Y-%m-%d'), "bill_id": bill.bill_id, "pile_id": bill.pile_id,
             "charge_amount": bill.charge_amount, "charge_duration": bill.charge_duration, "start_time":
-                bill.start_time.strftime('%Y-%m-%d %H:%M:%S'), "end_time": None, "total_charge_fee": bill.total_charge_fee,
+                bill.start_time.strftime('%Y-%m-%d %H:%M:%S'), "end_time": end_time, "total_charge_fee": bill.total_charge_fee,
             "total_service_fee": bill.total_service_fee, "total_fee": bill.total_fee}
 
 
@@ -173,6 +177,7 @@ def get_total_bill(request):
         bills = Bill.objects.filter(car_id=carid)
     else:
         bills = Bill.objects.filter(car_id=carid, bill_date=billdate)
+    print(bills)
     for bill in bills:
         if bill.charge_duration != None:
             lst.append({"car_id": carid, "bill_date": bill.bill_date.strftime('%Y-%m-%d'), "bill_id": bill.bill_id, "pile_id": bill.pile_id,
