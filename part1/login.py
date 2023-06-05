@@ -119,7 +119,7 @@ def admin_login(request):
     elif password == '123456':
         if models.User.objects.filter(is_admin=1).exists():
             token = models.User.objects.get(is_admin=1).token
-            if user_list.judge_user_online(token):
+            if 0:#user_list.judge_user_online(token):
                 return HttpResponse(json.dumps({'code': '0', 'message': '用户已登录'}, ensure_ascii=False))
             else:
                 admin = models.User.objects.get(is_admin=1)
