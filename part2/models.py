@@ -28,7 +28,7 @@ class Pile():
     def __init__(self,pile_id):
         self.pile_id=pile_id
         self.working_state=my_constant.pile_state.close
-        self.charge_mode="T" if pile_id<my_constant.fast_pile else "F"
+        self.charge_mode="F" if pile_id<my_constant.fast_pile else "T"
         self.broken_time=0
 
     def __str__(self):

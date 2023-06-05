@@ -88,7 +88,7 @@ class Queue:
                 self.waiting_queue[my_constant.waiting_area-1]=-1
                 self.mode_queue[my_constant.waiting_area-1]=-1
                 return
-    def re_add(self, car_id, charge_mode):
+    def re_add(self, car_id, charge_mode,queue_num):
         queue_cnt = 1
         self.del_wating(car_id)
         for i in range(my_constant.waiting_area):
@@ -97,7 +97,7 @@ class Queue:
             if self.waiting_queue[i] == -1:
                 self.waiting_queue[i] = car_id
                 self.mode_queue[i] = charge_mode
-                return 2, queue_cnt, str(self.get_new_queue_num())
+                return 2, queue_cnt, queue_num
     def get_car_position(self, car_id, charge_mode):
         queue_cnt = 0
         for i in range(my_constant.waiting_area):

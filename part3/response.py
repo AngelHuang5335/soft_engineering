@@ -154,10 +154,11 @@ def change_mode(request):
         return_json["message"] = "在充电区或正在充电"
         return_json["data"] = ""
         return HttpResponse(json.dumps(return_json, ensure_ascii=False))
-    state, pile_id, queue_num = queue.re_add(car_id, request_mode)
+    queue_num=operate.get_queue_num(car_id)
+    state, pile_id, queue_num = queue.re_add(car_id, request_mode, queue_num)
 
     operate.change_request_mode(car_id, request_mode)
-    operate.change_queue_num(car_id, queue_num)
+    #operate.change_queue_num(car_id, queue_num)
     operate.change_request_time(car_id)
     request_time=operate.get_request_time(car_id)
     operate.change_car_state(car_id, my_constant.car_state.wating)

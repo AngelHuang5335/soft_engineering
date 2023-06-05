@@ -270,6 +270,7 @@ def power_on(request):
     pile = pile_list[pileid]
     if pile.working_state == my_constant.pile_state.close:
         pile.working_state = my_constant.pile_state.idle
+        response.pile_recover(pileid)
     else:
         return_json["code"] = 0
         if pile.working_state == my_constant.pile_state.idle:
@@ -295,6 +296,7 @@ def power_off(request):
     pile = pile_list[pileid]
     if pile.working_state == my_constant.pile_state.idle:
         pile.working_state = my_constant.pile_state.close
+        response.pile_broken(pileid)
     else:
         return_json["code"] = 0
         if pile.working_state == my_constant.pile_state.close:
@@ -357,3 +359,9 @@ def query_report(request):
                            "total_service_fee": total_service_fee, "total_fee": total_fee, "start_date": start_date,
                            "end_date": end_date}
     return HttpResponse(json.dumps(return_json, ensure_ascii=False))
+
+
+def get_waiting_time(car_id):
+    last_time=get_request_time(car_id)
+    new_time=get_simulated_time()
+    return new_time-last_time
