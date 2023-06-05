@@ -19,7 +19,7 @@ def create_car(carid, carcapacity):
 
 def create_bill(carid, pileid):
     simulated_time = get_simulated_time()
-    Bill.objects.create(bill_id=datetime.strftime(simulated_time, "%Y%m%d%H%M%S") + carid,
+    Bill.objects.create(bill_id=simulated_time + str(carid),
                         bill_data=simulated_time.date(), start_timeend_time=simulated_time, car_id=carid,
                         pile_id=pileid)
     car = Car.objects.filter(car_id=carid)[0]

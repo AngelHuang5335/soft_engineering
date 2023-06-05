@@ -254,6 +254,7 @@ def get_queue_state(request):
         return_json["data"] = ""
         return HttpResponse(json.dumps(return_json, ensure_ascii=False))
     car_list=queue.get_all_car()
+    print(car_list)
     state_list={"state_list":[]}
     for i,j in car_list:
         tmp_dict = {}
