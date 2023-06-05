@@ -20,7 +20,7 @@ def create_bill(carid, pileid):
     car = Car.objects.filter(car_id=carid)[0]
     Bill.objects.create(bill_id=simulated_time + str(carid),
                         bill_date=datetime.strptime(simulated_time,"%Y-%m-%d %H:%M:%S").date(),
-                        start_timeend_time=datetime.strptime(simulated_time,"%Y-%m-%d %H:%M:%S"),
+                        start_time=datetime.strptime(simulated_time,"%Y-%m-%d %H:%M:%S"),
                         car_id=car, pile_id=pileid)
     if car.request_mode == "F":
         charge_time = car.request_amount / my_constant.slow_charging_v
