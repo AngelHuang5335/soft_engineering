@@ -48,7 +48,7 @@ class Bill(models.Model):
     bill_id = models.CharField(max_length=50, null=True)
     bill_date = models.DateField(null=True, default=None)
     charge_amount = models.FloatField(null=True)
-    charge_duration = models.FloatField(null=True)
+    charge_duration = models.FloatField(null=True, default=None)
     start_time = models.DateTimeField(null=True, default=None)
     end_time = models.DateTimeField(null=True, default=None)
     total_charge_fee = models.FloatField(null=True)

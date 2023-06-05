@@ -150,9 +150,8 @@ def change_request_time(carid):
 
 
 def change_pile_state(pileid, pilestate):
-    car = Car.objects.filter(plie_id=pileid)[0]
-    car.working_state = pilestate
-    car.save()
+    pile=pile_list[pileid]
+    pile.working_state=pilestate
 
 
 def get_total_bill(request):
@@ -171,8 +170,10 @@ def get_total_bill(request):
     else:
         bills = Bill.objects.filter(car_id=carid, bill_date=billdate)
     for bill in bills:
-        lst.append({"car_id": carid, "bill_date": bill.bill_date, "bill_id": bill.bill_id, "pile_id": bill.pile_id,
-                    "start_time": bill.start_time, "end_time": bill.end_time, "total_fee": bill.total_fee})
+        if bill.charge_duration != None:
+            lst.append({"car_id": carid, "bill_date": bill.bill_date.strftime('%Y-%m-%d'), "bill_id": bill.bill_id, "pile_id": bill.pile_id,
+                    "start_time": bill.start_time.strftime('%Y-%m-%d %H:%M:%S'), "end_time": bill.end_time.strftime('%Y-%m-%d %H:%M:%S'),
+                    "total_fee": bill.total_fee})
     return_json["data"] = lst
     return HttpResponse(json.dumps(return_json, ensure_ascii=False))
 
@@ -204,9 +205,9 @@ def get_detail_bill(request):
         return_json["data"] = ""
         return HttpResponse(json.dumps(return_json, ensure_ascii=False))
     bill = Bill.objects.filter(bill_id=billid)[0]
-    return_json["data"] = {"car_id": bill.car_id, "bill_date": bill.bill_date, "bill_id": billid,
+    return_json["data"] = {"car_id": bill.car_id, "bill_date": bill.bill_date.strftime('%Y-%m-%d'), "bill_id": billid,
                            "pile_id": bill.pile_id, "charge_amount": bill.charge_amount, "charge_duration":
-                               bill.charge_duration, "start_time": bill.start_time, "end_time": bill.end_time,
+                               bill.charge_duration, "start_time": bill.strftime('%Y-%m-%d %H:%M:%S'), "end_time": bill.strftime('%Y-%m-%d %H:%M:%S'),
                            "total_charge_fee": bill.total_charge_fee, "total_service_fee": bill.total_service_fee,
                            "total_fee": bill.total_fee, "pay_state": bill.pay_state}
     return HttpResponse(json.dumps(return_json, ensure_ascii=False))
@@ -289,11 +290,13 @@ def query_pile_state(request):
     pile = pile_list[pileid]
     bills = Bill.objects.filter(pile_id=pileid)
     totalChargeNum = 0
-    totalChargeTime = totalCapacity = 0.0
+    totalChargeTime = 0.0
+    totalCapacity = 0.0
     for bill in bills:
         totalChargeNum += 1
-        totalChargeTime += bill.charge_duration
-        totalCapacity += bill.charge_amount
+        if bill.charge_duration != None:
+            totalChargeTime += bill.charge_duration
+            totalCapacity += bill.charge_amount
     return_json["data"] = {"workingState": pile.working_state, "totalChargeNum": totalChargeNum,
                            "totalChargeTime": totalChargeTime, "totalCapacity": totalCapacity,
                            "charge_mode": pile.charge_mode}
