@@ -254,7 +254,7 @@ def get_queue_state(request):
         return_json["data"] = ""
         return HttpResponse(json.dumps(return_json, ensure_ascii=False))
     car_list=queue.get_all_car()
-    return_json["data"]=[]
+    state_list={"state_list":[]}
     for i,j in car_list:
         tmp_dict = {}
         tmp_dict["user_id"]=login.get_user_id(i)
@@ -264,7 +264,8 @@ def get_queue_state(request):
         tmp_dict["pile_id"]=j
         tmp_dict["car_state"]=operate.get_car_state(i)
         tmp_dict["request_mode"]=operate.get_request_mode(i)
-        return_json["data"].append(tmp_dict)
+        state_list["state_list"].append(tmp_dict)
+    return_json["data"]=state_list
     return HttpResponse(json.dumps(return_json, ensure_ascii=False))
 
 def add_price(request):

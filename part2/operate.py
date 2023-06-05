@@ -143,7 +143,7 @@ def get_request_time(carid):
 
 
 def get_charging_bill(carid):
-    bill = Bill.objects.filter(car_id=carid).last()
+    bill = Bill.objects.filter(car_id=carid)[-1]
     return {"car_id": carid, "bill_date": bill.bill_date, "bill_id": bill.bill_id, "pile_id": bill.pile_id,
             "charge_amount": bill.charge_amount, "charge_duration": bill.charge_duration, "start_time":
                 bill.start_time, "end_time": bill.end_time, "total_charge_fee": bill.total_charge_fee,
