@@ -57,7 +57,7 @@ def calculate_charge_fee(hou, minu, sec):
         low_time = 7.0 + hou - 23.0 + minu / 60 + sec / 3600
         mid_time = 8.0
         high_time = 8.0
-    return my_constant.low_price * low_time + my_constant.mid_price * mid_time + my_constant.high_price * high_time
+    return (my_constant.low_price * low_time + my_constant.mid_price * mid_time + my_constant.high_price * high_time)
 
 
 def update_bill(carid, sign):

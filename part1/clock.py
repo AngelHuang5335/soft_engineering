@@ -8,10 +8,9 @@ class Timer:
     coefficient = 10
     std_time = "2023-06-01 00:00:00"
     time1 = datetime.strptime(std_time, "%Y-%m-%d %H:%M:%S")
-    time2 = datetime.now()
-
     def get_time(self):
-        time_difference = self.time2 - self.time1
+        time2 = datetime.now()
+        time_difference = time2 - self.time1
         simulated_time = self.coefficient * time_difference + self.time1
         return simulated_time.strftime("%Y-%m-%d %H:%M:%S")
 
