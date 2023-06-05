@@ -363,5 +363,7 @@ def query_report(request):
 
 def get_waiting_time(car_id):
     last_time=get_request_time(car_id)
-    new_time=get_simulated_time()
-    return new_time-last_time
+    last_time=last_time.replace(tzinfo=None)
+    new_time=datetime.strptime(get_simulated_time(), "%Y-%m-%d %H:%M:%S")
+    last_time=last_time.replace(tzinfo=None)
+    return new_time - last_time

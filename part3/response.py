@@ -123,7 +123,7 @@ def change_amount(request):
         return_json["data"] = ""
         return HttpResponse(json.dumps(return_json, ensure_ascii=False))
     if car_state==my_constant.car_state.wating:
-        operate.change_request_amount(request_amount)
+        operate.change_request_amount(car_id,request_amount)
         return_json["code"] = 1
         return_json["message"] = "修改成功"
         return_json["data"] = ""
@@ -260,7 +260,7 @@ def get_queue_state(request):
         tmp_dict["user_id"]=login.get_user_id(i)
         tmp_dict["car_capacity"]=operate.get_car_capacity(i)
         tmp_dict["request_amount"]=operate.get_request_amount(i)
-        tmp_dict["wait_time"]=operate.get_waiting_time(i)
+        tmp_dict["wait_time"]=str(operate.get_waiting_time(i))
         tmp_dict["pile_id"]=j
         tmp_dict["car_state"]=operate.get_car_state(i)
         tmp_dict["request_mode"]=operate.get_request_mode(i)
