@@ -19,7 +19,7 @@ class my_constant:
         charging_area = "处于充电区"
         can_charging = "允许充电"
         charging = "正在充电"
-        end_charging = "结束充电"
+        end_charging = "充电结束"
     low_price=0
     mid_price=0
     high_price=0

@@ -30,6 +30,8 @@ def create_bill(carid, pileid):
 
 
 def calculate_charge_fee(hou, minu, sec):
+    mid_time=0
+    high_time=0
     if hou < 7:
         low_time = hou + minu / 60 + sec / 3600
     elif hou < 10:
@@ -62,7 +64,9 @@ def update_bill(carid, sign):
     car = Car.objects.filter(car_id=carid)[0]
     bill = Bill.objects.filter(car_id=carid).last()
     starttime = bill.start_time
-    endtime = get_simulated_time()
+    starttime=starttime.replace(tzinfo=None)
+    endtime=datetime.strptime(get_simulated_time(), "%Y-%m-%d %H:%M:%S")
+    endtime=endtime.replace(tzinfo=None)
     duration = (endtime - starttime).seconds / 3600
     if car.request_mode == "F":
         amount = duration * my_constant.slow_charging_v
@@ -115,7 +119,7 @@ def get_charging_bill(carid):
     bill = Bill.objects.filter(car_id=carid).last()
     return {"car_id": carid, "bill_date": bill.bill_date.strftime('%Y-%m-%d'), "bill_id": bill.bill_id, "pile_id": bill.pile_id,
             "charge_amount": bill.charge_amount, "charge_duration": bill.charge_duration, "start_time":
-                bill.start_time.strftime('%Y-%m-%d %H:%M:%S'), "end_time": bill.end_time.strftime('%Y-%m-%d %H:%M:%S'), "total_charge_fee": bill.total_charge_fee,
+                bill.start_time.strftime('%Y-%m-%d %H:%M:%S'), "end_time": None, "total_charge_fee": bill.total_charge_fee,
             "total_service_fee": bill.total_service_fee, "total_fee": bill.total_fee}
 
 
@@ -173,8 +177,8 @@ def get_total_bill(request):
         if bill.charge_duration != None:
             lst.append({"car_id": carid, "bill_date": bill.bill_date.strftime('%Y-%m-%d'), "bill_id": bill.bill_id, "pile_id": bill.pile_id,
                     "start_time": bill.start_time.strftime('%Y-%m-%d %H:%M:%S'), "end_time": bill.end_time.strftime('%Y-%m-%d %H:%M:%S'),
-                    "total_fee": bill.total_fee})
-    return_json["data"] = lst
+                    "total_fee": bill.total_fee, "pay_state": bill.pay_state})
+    return_json["data"] ={"bill_list": lst}
     return HttpResponse(json.dumps(return_json, ensure_ascii=False))
 
 
@@ -205,9 +209,10 @@ def get_detail_bill(request):
         return_json["data"] = ""
         return HttpResponse(json.dumps(return_json, ensure_ascii=False))
     bill = Bill.objects.filter(bill_id=billid)[0]
-    return_json["data"] = {"car_id": bill.car_id, "bill_date": bill.bill_date.strftime('%Y-%m-%d'), "bill_id": billid,
+    return_json["data"] = {"car_id": bill.car_id.car_id, "bill_date": bill.bill_date.strftime('%Y-%m-%d'), "bill_id": billid,
                            "pile_id": bill.pile_id, "charge_amount": bill.charge_amount, "charge_duration":
-                               bill.charge_duration, "start_time": bill.strftime('%Y-%m-%d %H:%M:%S'), "end_time": bill.strftime('%Y-%m-%d %H:%M:%S'),
+                               bill.charge_duration, "start_time": bill.start_time.strftime('%Y-%m-%d %H:%M:%S'),
+                           "end_time": bill.end_time.strftime('%Y-%m-%d %H:%M:%S'),
                            "total_charge_fee": bill.total_charge_fee, "total_service_fee": bill.total_service_fee,
                            "total_fee": bill.total_fee, "pay_state": bill.pay_state}
     return HttpResponse(json.dumps(return_json, ensure_ascii=False))
@@ -224,6 +229,7 @@ def get_pay_bill(request):
         return HttpResponse(json.dumps(return_json, ensure_ascii=False))
     bill = Bill.objects.filter(bill_id=billid)[0]
     bill.pay_state = 1
+    change_car_state(bill.car_id.car_id,my_constant.car_state.idle)
     bill.save()
     return HttpResponse(json.dumps(return_json, ensure_ascii=False))
 
@@ -335,7 +341,7 @@ def get_waiting_time(car_id):
     last_time=get_request_time(car_id)
     last_time=last_time.replace(tzinfo=None)
     new_time=datetime.strptime(get_simulated_time(), "%Y-%m-%d %H:%M:%S")
-    last_time=last_time.replace(tzinfo=None)
+    new_time=new_time.replace(tzinfo=None)
     return new_time - last_time
 
 def pile_crash(request):
