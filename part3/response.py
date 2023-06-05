@@ -123,6 +123,7 @@ def change_amount(request):
         return_json["data"] = ""
         return HttpResponse(json.dumps(return_json, ensure_ascii=False))
     if car_state==my_constant.car_state.wating:
+        operate.change_request_amount(request_amount)
         return_json["code"] = 1
         return_json["message"] = "修改成功"
         return_json["data"] = ""
@@ -158,7 +159,7 @@ def change_mode(request):
 
     operate.change_request_mode(car_id, request_mode)
     #operate.change_queue_num(car_id, queue_num)
-    operate.change_request_time(car_id)
+    #operate.change_request_time(car_id)
     request_time=operate.get_request_time(car_id)
     operate.change_car_state(car_id, my_constant.car_state.wating)
     return_json["data"] = {"car_position" : pile_id, "car_state": my_constant.car_state.wating,
@@ -213,11 +214,13 @@ def end_car_charging(car_id):
     elif car_state == my_constant.car_state.charging_area:
         operate.change_car_state(car_id, my_constant.car_state.idle)
         tmp_car=queue.get_new_charging_car(car_id)
-        operate.change_car_state(tmp_car, my_constant.car_state.charging_area)
+        if tmp_car!=-1:
+            operate.change_car_state(tmp_car, my_constant.car_state.charging_area)
     elif car_state == my_constant.car_state.can_charging:
         operate.change_car_state(car_id, my_constant.car_state.idle)
         tmp_car=queue.get_new_charging_car(car_id)
-        operate.change_car_state(tmp_car, my_constant.car_state.can_charging)
+        if tmp_car!=-1:
+            operate.change_car_state(tmp_car, my_constant.car_state.can_charging)
     elif car_state ==my_constant.car_state.charging:
         operate.change_car_state(car_id, my_constant.car_state.end_charging)
         operate.update_bill(car_id,0)
@@ -226,7 +229,8 @@ def end_car_charging(car_id):
         for i in car_list:
             operate.change_car_state(i, my_constant.car_state.can_charging)
         tmp_car=queue.get_new_charging_car(car_id)
-        operate.change_car_state(tmp_car, my_constant.car_state.can_charging)
+        if tmp_car!=-1:
+            operate.change_car_state(tmp_car, my_constant.car_state.can_charging)
     return return_json
 def end_charging(request):
     json_dict = json.loads(request.body)
