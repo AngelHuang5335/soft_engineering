@@ -13,5 +13,6 @@ urlpatterns = [
     path('queryQueueState', response.get_queue_state),
     path('queryPileAmount', response.query_pile_num),
     path('queryReport', operate.query_report),
-    path('create_price',response.add_price)
+    path('create_price',response.add_price),
+    path('powerCrash',operate.pile_crash)
 ]

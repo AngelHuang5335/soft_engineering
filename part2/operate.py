@@ -6,8 +6,6 @@ from django.http import HttpResponse
 from datetime import datetime
 import json
 import random
-import threading
-import time
 
 pile_list=[]
 for i in range(my_constant.pile_num):
@@ -20,7 +18,7 @@ def create_car(carid, carcapacity):
 def create_bill(carid, pileid):
     simulated_time = get_simulated_time()
     Bill.objects.create(bill_id=simulated_time + str(carid),
-                        bill_data=simulated_time.date(), start_timeend_time=simulated_time, car_id=carid,
+                        bill_data=datetime.strptime(simulated_time,"%Y-%m-%d %H:%M:%S").date(), start_timeend_time=simulated_time, car_id=carid,
                         pile_id=pileid)
     car = Car.objects.filter(car_id=carid)[0]
     if car.request_mode == "F":
@@ -88,36 +86,6 @@ def update_bill(carid, sign):
     bill.total_fee = charge_fee + service_fee
     bill.save()
     user_end_charge(carid)
-
-class Clock2:
-    def __init__(self, time):
-        self.time = time
-
-    def start(self):
-        threading.Thread(target=self.run).start()
-
-    def run(self):
-        # 等待持续时间
-        time.sleep(self.time)
-        # 提示用户
-        get_pile_state()
-
-
-def start_get_pile_state(time):
-    Clock2(time).start()
-# 模拟充电桩损坏
-def get_pile_state():
-    for pile in pile_list:
-        if pile.working_state == my_constant.pile_state.broken:
-            pile.broken_time += 1
-            if pile.broken_time >= 10:
-                pile.working_state = my_constant.pile_state.idle
-                response.pile_recover(pile.pile_id)
-        elif random.randint(0, 100) < 5:
-            pile.working_state = my_constant.pile_state.broken
-            pile.broken_time = 0
-            response.pile_broken(pile.pile_id)
-    start_get_pile_state(3000)
 
 
 def get_car_state(carid):
@@ -367,3 +335,26 @@ def get_waiting_time(car_id):
     new_time=datetime.strptime(get_simulated_time(), "%Y-%m-%d %H:%M:%S")
     last_time=last_time.replace(tzinfo=None)
     return new_time - last_time
+
+def pile_crash(request):
+    json_dict = json.loads(request.body)
+    return_json = {"code": 1, "message": "请求成功", "data": ""}
+    pileid = json_dict.get("pile_id", "")
+    if pileid == "":
+        return_json["code"] = 0
+        return_json["message"] = "缺少参数"
+        return_json["data"] = ""
+        return HttpResponse(json.dumps(return_json, ensure_ascii=False))
+    pile = pile_list[pileid]
+    if pile.working_state == my_constant.pile_state.idle or pile.working_state == my_constant.pile_state.using:
+        pile.working_state = my_constant.pile_state.broken
+        response.pile_broken(pileid)
+    else:
+        return_json["code"] = 0
+        if pile.working_state == my_constant.pile_state.close:
+            return_json["message"] = "充电桩已关闭"
+        if pile.working_state == my_constant.pile_state.broken:
+            return_json["message"] = "充电桩已损坏"
+        return_json["data"] = ""
+        return HttpResponse(json.dumps(return_json, ensure_ascii=False))
+    return HttpResponse(json.dumps(return_json, ensure_ascii=False))

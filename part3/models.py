@@ -136,6 +136,7 @@ class Queue:
                     pile_id=i
                     position=j
                     break
+        self.charge_queue[pile_id][position]=-1
         if pile_id < my_constant.fast_pile:
             charge_mode='F'
         rcode, new_car=self.check_broken_list(charge_mode)
@@ -150,6 +151,8 @@ class Queue:
                     self.mode_queue[my_constant.waiting_area-1]=-1
                     self.charge_queue[pile_id][position]=new_car
                     return new_car
+        else:
+            self.charge_queue[pile_id][position]=new_car
         return new_car
     def get_all_car(self):
         return_list=[]
