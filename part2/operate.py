@@ -17,10 +17,10 @@ def create_car(carid, carcapacity):
 
 def create_bill(carid, pileid):
     simulated_time = get_simulated_time()
-    Bill.objects.create(bill_id=simulated_time + str(carid),
-                        bill_data=datetime.strptime(simulated_time,"%Y-%m-%d %H:%M:%S").date(), start_timeend_time=simulated_time, car_id=carid,
-                        pile_id=pileid)
     car = Car.objects.filter(car_id=carid)[0]
+    Bill.objects.create(bill_id=simulated_time + str(carid),
+                        bill_data=datetime.strptime(simulated_time,"%Y-%m-%d %H:%M:%S").date(), start_timeend_time=simulated_time, car_id=car,
+                        pile_id=pileid)
     if car.request_mode == "F":
         charge_time = car.request_amount / my_constant.slow_charging_v
     elif car.request_mode == "T":
@@ -76,7 +76,7 @@ def update_bill(carid, sign):
                      calculate_charge_fee(starttime.hour, starttime.minute, starttime.second)
     else:
         charge_fee = (endtime.date() - starttime.date()).days * calculate_charge_fee(24, 0, 0) + \
-                     calculate_charge_fee(endtime.hour, endtime.minute, endtime.second) + \
+                     calculate_charge_fee(endtime.hour, endtime.minute, endtime.second) - \
                      calculate_charge_fee(starttime.hour, starttime.minute, starttime.second)
     bill.charge_amount = amount
     bill.charge_duration = duration
@@ -236,7 +236,7 @@ def power_on(request):
         return_json["data"] = ""
         return HttpResponse(json.dumps(return_json, ensure_ascii=False))
     pile = pile_list[pileid]
-    if pile.working_state == my_constant.pile_state.close:
+    if pile.working_state == my_constant.pile_state.close or pile.working_state == my_constant.pile_state.broken:
         pile.working_state = my_constant.pile_state.idle
         response.pile_recover(pileid)
     else:
@@ -245,8 +245,6 @@ def power_on(request):
             return_json["message"] = "充电桩已打开"
         if pile.working_state == my_constant.pile_state.using:
             return_json["message"] = "充电桩使用中"
-        if pile.working_state == my_constant.pile_state.broken:
-            return_json["message"] = "充电桩已损坏"
         return_json["data"] = ""
         return HttpResponse(json.dumps(return_json, ensure_ascii=False))
     return HttpResponse(json.dumps(return_json, ensure_ascii=False))
