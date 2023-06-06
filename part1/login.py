@@ -81,7 +81,7 @@ def user_login(request):
             user = models.User.objects.get(username=username)
             get_user_id(user.car_id)
             if check_password(password, user.password):
-                if user_list.check_user_online(user):
+                if 0:#user_list.check_user_online(user):
                     return HttpResponse(json.dumps({'code': 0, 'message': '用户已登录'}, ensure_ascii=False))
                 else:
                     user_list.user_online(user)

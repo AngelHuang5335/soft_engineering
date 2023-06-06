@@ -72,9 +72,9 @@ def update_bill(carid, sign):
     endtime=datetime.strptime(get_simulated_time(), "%Y-%m-%d %H:%M:%S")
     endtime=endtime.replace(tzinfo=None)
     duration = (endtime - starttime).seconds / 3600
-    if car.request_mode == "F":
+    if car.request_mode == "T":
         amount = duration * my_constant.slow_charging_v
-    elif car.request_mode == "T":
+    elif car.request_mode == "F":
         amount = duration * my_constant.fast_charging_v
     if sign == 1:
         car.request_amount = car.request_amount - amount

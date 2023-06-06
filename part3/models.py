@@ -62,9 +62,9 @@ class Queue:
                 if self.charge_queue[i][j] == -1:
                     self.charge_queue[i][j]=car_id
                     if self.pile_state[i]==my_constant.pile_state.idle:
-                        return 0,i,str(self.get_new_queue_num())
+                        return j,i,str(self.get_new_queue_num())
                     else:
-                        return 1, i, str(self.get_new_queue_num())
+                        return j, i, str(self.get_new_queue_num())
         for i in range(my_constant.waiting_area):
             if self.mode_queue[i] == charge_mode:
                 queue_cnt += 1
@@ -88,6 +88,7 @@ class Queue:
                 self.waiting_queue[my_constant.waiting_area-1]=-1
                 self.mode_queue[my_constant.waiting_area-1]=-1
                 return
+
     def re_add(self, car_id, charge_mode,queue_num):
         queue_cnt = 1
         self.del_wating(car_id)
@@ -105,7 +106,12 @@ class Queue:
                 queue_cnt += 1
             if self.waiting_queue[i] == car_id:
                 return queue_cnt
+        for i in range(my_constant.pile_num):
+            for j in range(my_constant.charge_area):
+                if self.charge_queue[i][j]==car_id:
+                    return j+1
         return 0
+    '''
     def get_car_list(self, car_id):
         for i in range(my_constant.pile_num):
             for j in range(my_constant.charge_area):
@@ -117,6 +123,7 @@ class Queue:
                             car_list.append(self.charge_queue[i][k])
                     self.charge_queue[i][j]=car_id
                     return car_list
+    '''
     def check_broken_list(self,charge_mode):
         if charge_mode=='F':
             list_id=0
@@ -140,7 +147,9 @@ class Queue:
                     pile_id=i
                     position=j
                     break
-        self.charge_queue[pile_id][position]=-1
+        for i in range(position,my_constant.charge_area-1):
+            self.charge_queue[pile_id][i]=self.charge_queue[pile_id][i+1]
+        self.charge_queue[pile_id][my_constant.charge_area-1]=-1
         if pile_id < my_constant.fast_pile:
             charge_mode='F'
         rcode, new_car=self.check_broken_list(charge_mode)
@@ -201,9 +210,9 @@ class Queue:
             pile_start=my_constant.fast_pile
             pile_end=my_constant.pile_num
             charge_mode="T"
-        for i in range(pile_start,pile_end):
-            if self.pile_state[i]!=my_constant.pile_state.broken and self.pile_state[i]!=my_constant.pile_state.close:
-                for j in range(my_constant.charge_area):
+        for j in range(my_constant.charge_area):
+            for i in range(pile_start,pile_end):
+                if self.pile_state[i]!=my_constant.pile_state.broken and self.pile_state[i]!=my_constant.pile_state.close:
                     if self.charge_queue[i][j]==-1:
                         rcode, new_car=self.check_broken_list(charge_mode)
                         self.charge_queue[i][j]=new_car

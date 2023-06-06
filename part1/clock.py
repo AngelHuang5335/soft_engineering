@@ -7,7 +7,7 @@ start_time=datetime.now()
 
 class Timer:
     coefficient = 10
-    std_time = "2023-06-07 00:06:00"
+    std_time = "2023-06-07 06:00:00"
     time1 = datetime.strptime(std_time, "%Y-%m-%d %H:%M:%S")
     def get_time(self):
         time2 = datetime.now()

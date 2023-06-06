@@ -66,11 +66,11 @@ def try_charging(request):
     request_time = operate.get_request_time(car_id)
     if state == 1:
         operate.change_car_state(car_id, my_constant.car_state.charging_area)
-        return_json["data"] = {"car_position" : pile_id, "car_state": my_constant.car_state.charging_area,
+        return_json["data"] = {"car_position" : state+1, "car_state": my_constant.car_state.charging_area,
                            "queue_num" : queue_num, "request_time": request_time.strftime('%Y-%m-%d %H:%M:%S')}#get_current_time
     elif state == 0:
         operate.change_car_state(car_id, my_constant.car_state.can_charging)
-        return_json["data"] = {"car_position" : pile_id, "car_state": my_constant.car_state.can_charging,
+        return_json["data"] = {"car_position" : state+1, "car_state": my_constant.car_state.can_charging,
                            "queue_num" : queue_num, "request_time": request_time.strftime('%Y-%m-%d %H:%M:%S')}#get_current_time
     else:
         operate.change_car_state(car_id, my_constant.car_state.wating)
@@ -201,10 +201,6 @@ def start_charging(request):
         operate.create_bill(car_id, pile_id)
         queue.pile_state[pile_id]=my_constant.pile_state.using
         operate.change_pile_state(pile_id, my_constant.pile_state.using)
-        car_list = queue.get_car_list(car_id)
-        for i in car_list:
-            operate.change_car_state(i, my_constant.car_state.charging_area)
-        operate.change_pile_state(pile_id,my_constant.pile_state.using)
         return HttpResponse(json.dumps(return_json, ensure_ascii=False))
     return_json["code"]=0
     return_json["message"]="充电桩正在使用中"
@@ -241,20 +237,21 @@ def end_car_charging(car_id):
             operate.change_car_state(tmp_car, my_constant.car_state.charging_area)
     elif car_state == my_constant.car_state.can_charging:
         operate.change_car_state(car_id, my_constant.car_state.idle)
+        pile_id=queue.get_pile_id(car_id)
         tmp_car=queue.get_new_charging_car(car_id)
         if tmp_car!=-1:
-            operate.change_car_state(tmp_car, my_constant.car_state.can_charging)
+            operate.change_car_state(tmp_car, my_constant.car_state.charging_area)
+        if queue.charge_queue[pile_id][0]!=-1:
+            operate.change_car_state(queue.charge_queue[pile_id][0], my_constant.car_state.can_charging)
     elif car_state ==my_constant.car_state.charging:
         operate.change_car_state(car_id, my_constant.car_state.end_charging)
         operate.update_bill(car_id,0)
-        operate.change_pile_state(queue.get_pile_id(car_id),my_constant.pile_state.idle)
-        queue.pile_state[queue.get_pile_id(car_id)]=my_constant.pile_state.idle
-        car_list = queue.get_car_list(car_id)
-        for i in car_list:
-            operate.change_car_state(i, my_constant.car_state.can_charging)
+        pile_id=queue.get_pile_id(car_id)
+        operate.change_pile_state(pile_id,my_constant.pile_state.idle)
+        queue.pile_state[pile_id]=my_constant.pile_state.idle
         tmp_car=queue.get_new_charging_car(car_id)
         if tmp_car!=-1:
-            operate.change_car_state(tmp_car, my_constant.car_state.can_charging)
+            operate.change_car_state(tmp_car, my_constant.car_state.charging_area)
     return return_json
 def end_charging(request):
     json_dict = json.loads(request.body)
