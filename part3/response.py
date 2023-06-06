@@ -70,7 +70,7 @@ def try_charging(request):
                            "queue_num" : queue_num, "request_time": request_time.strftime('%Y-%m-%d %H:%M:%S')}#get_current_time
     elif state == 0:
         operate.change_car_state(car_id, my_constant.car_state.can_charging)
-        return_json["data"] = {"car_position" : pile_id, "car_state": my_constant.car_state.charging_area,
+        return_json["data"] = {"car_position" : pile_id, "car_state": my_constant.car_state.can_charging,
                            "queue_num" : queue_num, "request_time": request_time.strftime('%Y-%m-%d %H:%M:%S')}#get_current_time
     else:
         operate.change_car_state(car_id, my_constant.car_state.wating)
@@ -199,7 +199,7 @@ def start_charging(request):
     if car_state == my_constant.car_state.can_charging:
         operate.change_car_state(car_id,my_constant.car_state.charging)
         operate.create_bill(car_id, pile_id)
-        queue.charge_queue[pile_id]=my_constant.pile_state.using
+        queue.pile_state[pile_id]=my_constant.pile_state.using
         operate.change_pile_state(pile_id, my_constant.pile_state.using)
         car_list = queue.get_car_list(car_id)
         for i in car_list:

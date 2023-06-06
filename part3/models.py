@@ -110,13 +110,13 @@ class Queue:
         for i in range(my_constant.pile_num):
             for j in range(my_constant.charge_area):
                 if self.charge_queue[i][j] == car_id:
-                    list = []
+                    car_list = []
                     self.charge_queue[i][j]=-1
                     for k in range(my_constant.charge_area):
                         if self.charge_queue[i][k]!=-1:
-                            list.append(self.charge_queue[i][k])
+                            car_list.append(self.charge_queue[i][k])
                     self.charge_queue[i][j]=car_id
-                    return list
+                    return car_list
     def check_broken_list(self,charge_mode):
         if charge_mode=='F':
             list_id=0
