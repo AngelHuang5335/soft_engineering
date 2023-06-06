@@ -36,6 +36,12 @@ def try_charging(request):
         return_json["message"] = "请先支付之前的订单"
         return_json["data"] = ""
         return HttpResponse(json.dumps(return_json, ensure_ascii=False))
+    if car_state==my_constant.car_state.charging_area or car_state==my_constant.car_state.wating \
+            or car_state==my_constant.car_state.can_charging:
+        return_json["code"] = 0
+        return_json["message"] = "重复提交充电请求"
+        return_json["data"] = ""
+        return HttpResponse(json.dumps(return_json, ensure_ascii=False))
     if request_amount<=0:
         return_json["code"] = 0
         return_json["message"] = "请求电量小于等于0"
@@ -343,5 +349,5 @@ def query_pile_num(request):
 
 def get_time(response):
     return_json = {"code": 1, "message" : "查询成功", "data" : ""}
-    return_json["data"]=clock.get_simulated_time()
+    return_json["data"]={"time":clock.get_simulated_time()}
     return HttpResponse(json.dumps(return_json, ensure_ascii=False))

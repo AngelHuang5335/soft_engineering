@@ -201,7 +201,7 @@ class Queue:
         for i in range(pile_start,pile_end):
             if self.pile_state[i]!=my_constant.pile_state.broken and self.pile_state[i]!=my_constant.pile_state.close:
                 for j in range(my_constant.charge_area):
-                    if self.charge_queue[i][j]!=-1:
+                    if self.charge_queue[i][j]==-1:
                         rcode, new_car=self.check_broken_list(charge_mode)
                         self.charge_queue[i][j]=new_car
                         return rcode, i
