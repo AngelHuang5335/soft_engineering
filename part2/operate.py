@@ -12,7 +12,7 @@ for i in range(my_constant.pile_num):
     pile_list.append(Pile(i))
 
 def create_car(carid, carcapacity):
-    Car.objects.create(car_id=carid, car_capacity=carcapacity)
+    Car.objects.create(car_id=carid, car_capacity=carcapacity, car_state=my_constant.car_state.idle)
 
 
 def create_bill(carid, pileid):
@@ -62,7 +62,7 @@ def calculate_charge_fee(hou, minu, sec):
 
 def update_bill(carid, sign):
     car = Car.objects.filter(car_id=carid)[0]
-    bill = Bill.objects.filter(car_id=carid).last()
+    bill = Bill.objects.filter(car_id=car).last()
     starttime = bill.start_time
     starttime=starttime.replace(tzinfo=None)
     endtime=datetime.strptime(get_simulated_time(), "%Y-%m-%d %H:%M:%S")
@@ -116,7 +116,8 @@ def get_request_time(carid):
 
 
 def get_charging_bill(carid):
-    bill = Bill.objects.filter(car_id=carid).last()
+    car = Car.objects.filter(car_id=carid)[0]
+    bill = Bill.objects.filter(car_id=car).last()
     if bill.end_time == None:
         end_time=None
     else:
@@ -173,10 +174,11 @@ def get_total_bill(request):
         return_json["data"] = ""
         return HttpResponse(json.dumps(return_json, ensure_ascii=False))
     lst = []
-    if billdate=="":
-        bills = Bill.objects.filter(car_id=carid)
+    car = Car.objects.filter(car_id=carid)[0]
+    if billdate=="" or billdate is None:
+        bills = Bill.objects.filter(car_id=car)
     else:
-        bills = Bill.objects.filter(car_id=carid, bill_date=billdate)
+        bills = Bill.objects.filter(car_id=car, bill_date=billdate)
     print(bills)
     for bill in bills:
         if bill.charge_duration != None:

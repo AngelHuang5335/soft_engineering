@@ -50,12 +50,12 @@ def user_register(request):
     car_id = json_dict.get('car_id')
     car_capacity = json_dict.get('car_capacity')
     if username and password and car_id and car_capacity:
-        if car_id == '0':
-            return HttpResponse(json.dumps({'code': '0', 'message': '车辆编号非法'}, ensure_ascii=False))
+        if car_id == 0:
+            return HttpResponse(json.dumps({'code': 0, 'message': '车辆编号非法'}, ensure_ascii=False))
         if models.User.objects.filter(username=username).exists():
-            return HttpResponse(json.dumps({'code': '0', 'message': '用户名已存在'}, ensure_ascii=False))
+            return HttpResponse(json.dumps({'code': 0, 'message': '用户名已存在'}, ensure_ascii=False))
         if models.User.objects.filter(car_id=car_id).exists():
-            return HttpResponse(json.dumps({'code': '0', 'message': '车辆编号已存在'}, ensure_ascii=False))
+            return HttpResponse(json.dumps({'code': 0, 'message': '车辆编号已存在'}, ensure_ascii=False))
         password = make_password(password)
         token = generate_token(username)
         user = models.User(username=username, password=password, car_id=car_id, is_admin=0,
@@ -64,12 +64,12 @@ def user_register(request):
         user.save()
         user_id = user.id
         create_car(car_id, car_capacity)
-        return_json = {'code': '1', 'message': '注册成功',
+        return_json = {'code': 1, 'message': '注册成功',
                        'data': {'user_id': user_id, 'user_name': username, 'token': token, 'car_id': car_id,
                                 'car_capacity': car_capacity}}
         return HttpResponse(json.dumps(return_json, ensure_ascii=False))
     else:
-        return HttpResponse(json.dumps({'code': '0', 'message': '所有选项均不能为空'}, ensure_ascii=False))
+        return HttpResponse(json.dumps({'code': 0, 'message': '所有选项均不能为空'}, ensure_ascii=False))
 
 
 def user_login(request):
@@ -82,20 +82,20 @@ def user_login(request):
             get_user_id(user.car_id)
             if check_password(password, user.password):
                 if user_list.check_user_online(user):
-                    return HttpResponse(json.dumps({'code': '0', 'message': '用户已登录'}, ensure_ascii=False))
+                    return HttpResponse(json.dumps({'code': 0, 'message': '用户已登录'}, ensure_ascii=False))
                 else:
                     user_list.user_online(user)
-                    return_json = {'code': '1', 'message': '登录成功',
+                    return_json = {'code': 1, 'message': '登录成功',
                                    'data': {'user_id': user.id, 'user_name': username, 'token': user.token,
                                             'car_id': user.car_id,
                                             'car_capacity': get_car_capacity(user.car_id)}}
                     return HttpResponse(json.dumps(return_json, ensure_ascii=False))
             else:
-                return HttpResponse(json.dumps({'code': '0', 'message': '用户名与密码不匹配'}, ensure_ascii=False))
+                return HttpResponse(json.dumps({'code': 0, 'message': '用户名与密码不匹配'}, ensure_ascii=False))
         else:
-            return HttpResponse(json.dumps({'code': '0', 'message': '用户名不存在'}, ensure_ascii=False))
+            return HttpResponse(json.dumps({'code': 0, 'message': '用户名不存在'}, ensure_ascii=False))
     else:
-        return HttpResponse(json.dumps({'code': '0', 'message': '用户名与密码不能为空'}, ensure_ascii=False))
+        return HttpResponse(json.dumps({'code': 0, 'message': '用户名与密码不能为空'}, ensure_ascii=False))
 
 
 def user_logout(request):
@@ -104,37 +104,37 @@ def user_logout(request):
         flag, _ = user_list.judge_user_token(token)
         if flag:
             user_list.user_offline(token)
-            return HttpResponse(json.dumps({'code': '1', 'message': '成功登出'}, ensure_ascii=False))
+            return HttpResponse(json.dumps({'code': 1, 'message': '成功登出'}, ensure_ascii=False))
         else:
-            return HttpResponse(json.dumps({'code': '0', 'message': '用户未登录'}, ensure_ascii=False))
+            return HttpResponse(json.dumps({'code': 0, 'message': '用户未登录'}, ensure_ascii=False))
     else:
-        return HttpResponse(json.dumps({'code': '0', 'message': '用户未登录'}, ensure_ascii=False))
+        return HttpResponse(json.dumps({'code': 0, 'message': '用户未登录'}, ensure_ascii=False))
 
 
 def admin_login(request):
     json_dict = json.loads(request.body)
     password = json_dict.get('password')
     if password is None:
-        return HttpResponse(json.dumps({'code': '0', 'message': '密码不能为空'}, ensure_ascii=False))
+        return HttpResponse(json.dumps({'code': 0, 'message': '密码不能为空'}, ensure_ascii=False))
     elif password == '123456':
         if models.User.objects.filter(is_admin=1).exists():
             token = models.User.objects.get(is_admin=1).token
             if 0:#user_list.judge_user_online(token):
-                return HttpResponse(json.dumps({'code': '0', 'message': '用户已登录'}, ensure_ascii=False))
+                return HttpResponse(json.dumps({'code': 0, 'message': '用户已登录'}, ensure_ascii=False))
             else:
                 admin = models.User.objects.get(is_admin=1)
                 user_list.user_online(admin)
-                return_json = {'code': '1', 'message': '登录成功', 'data': {'token': token}}
+                return_json = {'code': 1, 'message': '登录成功', 'data': {'token': token}}
                 return HttpResponse(json.dumps(return_json, ensure_ascii=False))
         else:
             token = generate_token('admin')
             admin = models.User(password='123456', is_admin=1, token=token)
             admin.save()
             user_list.user_online(admin)
-            return_json = {'code': '1', 'message': '登录成功', 'data': {'token': token}}
+            return_json = {'code': 1, 'message': '登录成功', 'data': {'token': token}}
         return HttpResponse(json.dumps(return_json, ensure_ascii=False))
     else:
-        return HttpResponse(json.dumps({'code': '0', 'message': '密码错误'}, ensure_ascii=False))
+        return HttpResponse(json.dumps({'code': 0, 'message': '密码错误'}, ensure_ascii=False))
 
 
 def admin_logout(request):
@@ -142,10 +142,10 @@ def admin_logout(request):
     if user_list.judge_user_online(token):
         if user_list.judge_admin_token(token):
             user_list.user_offline(token)
-            return HttpResponse(json.dumps({'code': '1', 'message': '成功登出'}, ensure_ascii=False))
+            return HttpResponse(json.dumps({'code': 1, 'message': '成功登出'}, ensure_ascii=False))
         else:
-            return HttpResponse(json.dumps({'code': '0', 'message': '用户未登录'}, ensure_ascii=False))
+            return HttpResponse(json.dumps({'code': 0, 'message': '用户未登录'}, ensure_ascii=False))
     else:
-        return HttpResponse(json.dumps({'code': '0', 'message': '用户未登录'}, ensure_ascii=False))
+        return HttpResponse(json.dumps({'code': 0, 'message': '用户未登录'}, ensure_ascii=False))
 
 

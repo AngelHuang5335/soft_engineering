@@ -16,8 +16,10 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import include
 from django.urls import path
+from part3 import response
 
 urlpatterns = [
     path('user/', include("config.user_urls")),
     path('admin/', include("config.admin_urls")),
+    path('getTime', response.get_time),
 ]

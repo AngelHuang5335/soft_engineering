@@ -1,6 +1,6 @@
 from django.http import HttpResponse
 from part3.models import Queue,my_constant,Price
-from part1 import login
+from part1 import login, clock
 from part2 import operate
 import json
 
@@ -89,8 +89,10 @@ def get_state(request):
     queue_num = operate.get_queue_num(car_id)
     request_time = operate.get_request_time(car_id)
     request_amount = operate.get_request_amount(car_id)
+    if request_time!=None:
+        request_time=request_time.strftime('%Y-%m-%d %H:%M:%S')
     return_json["data"]={"car_position": car_position, "car_state": car_state, "queue_num": queue_num,
-                         "request_time": request_time.strftime('%Y-%m-%d %H:%M:%S'), "pile_id": pile_id,
+                         "request_time": request_time, "pile_id": pile_id,
                          "request_mode": request_mode, "request_amount":request_amount}
     return HttpResponse(json.dumps(return_json, ensure_ascii=False))
 def change_amount(request):
@@ -299,11 +301,21 @@ def pile_broken(pile_id):
     car_list=queue.pile_broken(pile_id)
     for i in car_list:
         car_state=operate.get_car_state(i)
-        if car_state==my_constant.car_state.charging:
-            operate.update_bill(i,1)
-            operate.change_car_state(i,my_constant.car_state.charging_area)
-        elif car_state==my_constant.car_state.charging_area or car_state==my_constant.car_state.can_charging:
-            operate.change_car_state(i,my_constant.car_state.charging_area)
+        rcode, new_pile_id = queue.try_get_newposition(pile_id)
+        if rcode == -1:
+            if car_state==my_constant.car_state.charging:
+                operate.update_bill(i, 1)
+                operate.change_car_state(i,my_constant.car_state.charging_area)
+            elif car_state==my_constant.car_state.charging_area or car_state==my_constant.car_state.can_charging:
+                operate.change_car_state(i,my_constant.car_state.charging_area)
+        else:
+            if car_state == my_constant.car_state.charging:
+                operate.update_bill(i, 1)
+            pile_state=operate.pile_list[new_pile_id].working_state
+            if pile_state==my_constant.pile_state.using:
+                operate.change_car_state(i,my_constant.car_state.charging_area)
+            else:
+                operate.change_car_state(i,my_constant.car_state.can_charging)
 
 def pile_recover(pile_id):
     car_list=queue.pile_recover(pile_id)
@@ -327,4 +339,9 @@ def query_pile_num(request):
     data_dict["fast_pile_id"]=fast_pile_id
     data_dict["slow_pile_id"]=slow_pile_id
     return_json["data"]=data_dict
+    return HttpResponse(json.dumps(return_json, ensure_ascii=False))
+
+def get_time(response):
+    return_json = {"code": 1, "message" : "查询成功", "data" : ""}
+    return_json["data"]=clock.get_simulated_time()
     return HttpResponse(json.dumps(return_json, ensure_ascii=False))
