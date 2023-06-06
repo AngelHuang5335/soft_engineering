@@ -322,7 +322,7 @@ def pile_broken(pile_id):
     car_list=queue.pile_broken(pile_id)
     for i in car_list:
         car_state=operate.get_car_state(i)
-        rcode, new_pile_id = queue.try_get_newposition(pile_id)
+        rcode, new_pile_id, j = queue.try_get_newposition(pile_id)
         if rcode == -1:
             if car_state==my_constant.car_state.charging:
                 operate.update_bill(i, 1)
@@ -332,16 +332,18 @@ def pile_broken(pile_id):
         else:
             if car_state == my_constant.car_state.charging:
                 operate.update_bill(i, 1)
-            pile_state=operate.pile_list[new_pile_id].working_state
-            if pile_state==my_constant.pile_state.using:
+            if j!=0:
                 operate.change_car_state(i,my_constant.car_state.charging_area)
             else:
                 operate.change_car_state(i,my_constant.car_state.can_charging)
 
 def pile_recover(pile_id):
     car_list=queue.pile_recover(pile_id)
-    for i in car_list:
-        operate.change_car_state(i,my_constant.car_state.can_charging)
+    for i in range(len(car_list)):
+        if i==0:
+            operate.change_car_state(i,my_constant.car_state.can_charging)
+        else:
+            operate.change_car_state(i,my_constant.car_state.charging_area)
 def query_pile_num(request):
     return_json = {"code" : 1, "message" : "查询成功", "data" : ""}
     state=login.judge_admin_token(request.META.get("HTTP_AUTHORIZATION"))

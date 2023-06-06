@@ -216,6 +216,6 @@ class Queue:
                     if self.charge_queue[i][j]==-1:
                         rcode, new_car=self.check_broken_list(charge_mode)
                         self.charge_queue[i][j]=new_car
-                        return rcode, i
+                        return rcode, i, j
         return -1,-1
     pass
