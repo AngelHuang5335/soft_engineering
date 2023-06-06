@@ -219,6 +219,7 @@ def get_charging_state(request):
         return_json["message"] = "token验证错误"
         return_json["data"] = ""
         return HttpResponse(json.dumps(return_json, ensure_ascii=False))
+    operate.update_bill(car_id, 0)
     return_json["data"]=operate.get_charging_bill(car_id)
     return HttpResponse(json.dumps(return_json, ensure_ascii=False))
 def end_car_charging(car_id):
@@ -245,7 +246,7 @@ def end_car_charging(car_id):
         operate.change_car_state(car_id, my_constant.car_state.end_charging)
         operate.update_bill(car_id,0)
         operate.change_pile_state(queue.get_pile_id(car_id),my_constant.pile_state.idle)
-        queue.charge_queue[queue.get_pile_id(car_id)]=my_constant.pile_state.idle
+        queue.pile_state[queue.get_pile_id(car_id)]=my_constant.pile_state.idle
         car_list = queue.get_car_list(car_id)
         for i in car_list:
             operate.change_car_state(i, my_constant.car_state.can_charging)
@@ -268,12 +269,14 @@ def end_charging(request):
 
 def get_queue_state(request):
     return_json = {"code" : 1, "message" : "查询成功", "data" : ""}
+    '''
     state=login.judge_admin_token(request.META.get("HTTP_AUTHORIZATION"))
     if state==0:
         return_json["code"] = 0
         return_json["message"] = "token验证错误"
         return_json["data"] = ""
         return HttpResponse(json.dumps(return_json, ensure_ascii=False))
+    '''
     car_list=queue.get_all_car()
     print(car_list)
     state_list={"state_list":[]}

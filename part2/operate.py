@@ -29,7 +29,11 @@ def create_bill(carid, pileid):
     user_charge(charge_time, carid)
 
 
-def calculate_charge_fee(hou, minu, sec):
+def calculate_charge_fee(hou, minu, sec, charge_mode):
+    if charge_mode=="F":
+        v=my_constant.fast_charging_v
+    else:
+        v=my_constant.slow_charging_v
     mid_time=0
     high_time=0
     if hou < 7:
@@ -57,7 +61,7 @@ def calculate_charge_fee(hou, minu, sec):
         low_time = 7.0 + hou - 23.0 + minu / 60 + sec / 3600
         mid_time = 8.0
         high_time = 8.0
-    return (my_constant.low_price * low_time + my_constant.mid_price * mid_time + my_constant.high_price * high_time)
+    return v*(my_constant.low_price * low_time + my_constant.mid_price * mid_time + my_constant.high_price * high_time)
 
 
 def update_bill(carid, sign):
@@ -77,12 +81,12 @@ def update_bill(carid, sign):
         car.save()
     service_fee = amount * my_constant.service_price
     if endtime.date() == starttime.date():
-        charge_fee = calculate_charge_fee(endtime.hour, endtime.minute, endtime.second) - \
-                     calculate_charge_fee(starttime.hour, starttime.minute, starttime.second)
+        charge_fee = calculate_charge_fee(endtime.hour, endtime.minute, endtime.second,car.request_mode) - \
+                     calculate_charge_fee(starttime.hour, starttime.minute, starttime.second,car.request_mode)
     else:
-        charge_fee = (endtime.date() - starttime.date()).days * calculate_charge_fee(24, 0, 0) + \
-                     calculate_charge_fee(endtime.hour, endtime.minute, endtime.second) - \
-                     calculate_charge_fee(starttime.hour, starttime.minute, starttime.second)
+        charge_fee = (endtime.date() - starttime.date()).days * calculate_charge_fee(24, 0, 0,car.request_mode) + \
+                     calculate_charge_fee(endtime.hour, endtime.minute, endtime.second,car.request_mode) - \
+                     calculate_charge_fee(starttime.hour, starttime.minute, starttime.second,car.request_mode)
     bill.charge_amount = amount
     bill.charge_duration = duration
     bill.end_time = endtime
