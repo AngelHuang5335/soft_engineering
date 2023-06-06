@@ -227,7 +227,7 @@ def get_detail_bill(request):
 
 def get_pay_bill(request):
     json_dict = json.loads(request.body)
-    return_json = {"code": 1, "message": "请求成功", "data": ""}
+    return_json = {"code": 1, "message": "支付成功", "data": ""}
     billid = json_dict.get("bill_id", "")
     if billid == "":
         return_json["code"] = 0
@@ -235,9 +235,18 @@ def get_pay_bill(request):
         return_json["data"] = ""
         return HttpResponse(json.dumps(return_json, ensure_ascii=False))
     bill = Bill.objects.filter(bill_id=billid)[0]
+    if bill.pay_state==1:
+        return_json["code"] = 0
+        return_json["message"] = "详单重复支付"
+        return_json["data"] = ""
+        return HttpResponse(json.dumps(return_json, ensure_ascii=False))
     bill.pay_state = 1
     change_car_state(bill.car_id.car_id,my_constant.car_state.idle)
     bill.save()
+    car = bill.car_id
+    bills = Bill.objects.filter(car_id=car, pay_state=0)
+    if bills.count()==0:
+        change_car_state(car.car_id, my_constant.car_state.idle)
     return HttpResponse(json.dumps(return_json, ensure_ascii=False))
 
 

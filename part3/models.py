@@ -172,9 +172,12 @@ class Queue:
         if self.pile_state[pile_id]==my_constant.pile_state.broken:
             return
         return_list=[]
+        charge_mode = 1
+        if pile_id<my_constant.fast_pile:
+            charge_mode = 0
         for i in self.charge_queue[pile_id]:
             if i!=-1:
-                self.broken_list.append(i)
+                self.broken_list[charge_mode].append(i)
                 return_list.append(i)
         self.pile_state[pile_id]=my_constant.pile_state.broken
         return return_list
@@ -183,8 +186,8 @@ class Queue:
             return
         return_list=[]
         for i in range(my_constant.charge_area):
-            self.charge_queue[pile_id][i]=-2
-            self.charge_queue[pile_id][i]=self.get_new_charging_car(-2)
+            self.charge_queue[pile_id][i] = -2
+            self.charge_queue[pile_id][i] = self.get_new_charging_car(-2)
             if self.charge_queue[pile_id][i]!=-1:
                 return_list.append(self.charge_queue[pile_id][i])
         self.pile_state[pile_id]=my_constant.pile_state.idle
