@@ -252,6 +252,8 @@ def end_car_charging(car_id):
         tmp_car=queue.get_new_charging_car(car_id)
         if tmp_car!=-1:
             operate.change_car_state(tmp_car, my_constant.car_state.charging_area)
+        if queue.charge_queue[pile_id][0]!=-1:
+            operate.change_car_state(queue.charge_queue[pile_id][0], my_constant.car_state.can_charging)
     return return_json
 def end_charging(request):
     json_dict = json.loads(request.body)
@@ -341,9 +343,9 @@ def pile_recover(pile_id):
     car_list=queue.pile_recover(pile_id)
     for i in range(len(car_list)):
         if i==0:
-            operate.change_car_state(i,my_constant.car_state.can_charging)
+            operate.change_car_state(car_list[i],my_constant.car_state.can_charging)
         else:
-            operate.change_car_state(i,my_constant.car_state.charging_area)
+            operate.change_car_state(car_list[i],my_constant.car_state.charging_area)
 def query_pile_num(request):
     return_json = {"code" : 1, "message" : "查询成功", "data" : ""}
     state=login.judge_admin_token(request.META.get("HTTP_AUTHORIZATION"))

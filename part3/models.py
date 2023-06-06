@@ -162,10 +162,10 @@ class Queue:
                         self.mode_queue[j]=self.mode_queue[j+1]
                     self.waiting_queue[my_constant.waiting_area-1]=-1
                     self.mode_queue[my_constant.waiting_area-1]=-1
-                    self.charge_queue[pile_id][position]=new_car
+                    self.charge_queue[pile_id][my_constant.charge_area-1]=new_car
                     return new_car
         else:
-            self.charge_queue[pile_id][position]=new_car
+            self.charge_queue[pile_id][my_constant.charge_area-1]=new_car
         return new_car
     def get_all_car(self):
         return_list=[]
