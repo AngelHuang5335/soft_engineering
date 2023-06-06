@@ -8,11 +8,11 @@ start_time=datetime.now()
 class Timer:
     coefficient = 10
     std_time = "2023-06-07 00:06:00"
-    #time1 = datetime.strptime(std_time, "%Y-%m-%d %H:%M:%S")
+    time1 = datetime.strptime(std_time, "%Y-%m-%d %H:%M:%S")
     def get_time(self):
         time2 = datetime.now()
         time_difference = time2 - start_time
-        simulated_time = self.coefficient * time_difference + self.std_time
+        simulated_time = self.coefficient * time_difference + self.time1
         return simulated_time.strftime("%Y-%m-%d %H:%M:%S")
 
 
