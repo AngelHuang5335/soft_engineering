@@ -219,7 +219,7 @@ def get_charging_state(request):
         return_json["message"] = "token验证错误"
         return_json["data"] = ""
         return HttpResponse(json.dumps(return_json, ensure_ascii=False))
-    operate.update_bill(car_id, 0)
+    operate.update_bill(car_id, 2)
     return_json["data"]=operate.get_charging_bill(car_id)
     return HttpResponse(json.dumps(return_json, ensure_ascii=False))
 def end_car_charging(car_id):

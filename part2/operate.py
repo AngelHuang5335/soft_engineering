@@ -94,7 +94,8 @@ def update_bill(carid, sign):
     bill.total_service_fee = service_fee
     bill.total_fee = charge_fee + service_fee
     bill.save()
-    user_end_charge(carid)
+    if sign!=2:
+        user_end_charge(carid)
 
 
 def get_car_state(carid):
