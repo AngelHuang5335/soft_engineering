@@ -3,15 +3,16 @@ import time
 from datetime import datetime
 from part3 import response
 
+start_time=datetime.now()
 
 class Timer:
     coefficient = 10
-    std_time = "2023-06-01 00:00:00"
-    time1 = datetime.strptime(std_time, "%Y-%m-%d %H:%M:%S")
+    std_time = "2023-06-07 00:06:00"
+    #time1 = datetime.strptime(std_time, "%Y-%m-%d %H:%M:%S")
     def get_time(self):
         time2 = datetime.now()
-        time_difference = time2 - self.time1
-        simulated_time = self.coefficient * time_difference + self.time1
+        time_difference = time2 - start_time
+        simulated_time = self.coefficient * time_difference + self.std_time
         return simulated_time.strftime("%Y-%m-%d %H:%M:%S")
 
 
