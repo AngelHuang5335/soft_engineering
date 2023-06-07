@@ -2,7 +2,7 @@ from django.db import models
 
 class my_constant:
     charge_area = 2
-    waiting_area = 6
+    waiting_area = 10
     fast_pile = 2
     slow_pile = 3
     pile_num = fast_pile + slow_pile
@@ -217,5 +217,5 @@ class Queue:
                         rcode, new_car=self.check_broken_list(charge_mode)
                         self.charge_queue[i][j]=new_car
                         return rcode, i, j
-        return -1,-1
+        return -1,-1,-1
     pass
